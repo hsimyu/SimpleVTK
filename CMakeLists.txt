@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
+project(SimpleVTK)
 # options
-option(TEST_SIMPLE_XDMF "Test SimpleXdmf with GoogleTest." OFF)
-option(BUILD_SIMPLE_XDMF_EXAMPLES "Build example uses of SimpleXdmf." OFF)
+option(TEST_SIMPLE_VTK "Test SimpleVTK with GoogleTest." OFF)
+option(BUILD_SIMPLE_VTK_EXAMPLES "Build example uses of SimpleVTK." OFF)
 
 # add submodules
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-if(BUILD_SIMPLE_XDMF_EXAMPLES OR TEST_SIMPLE_XDMF)
+if(BUILD_SIMPLE_VTK_EXAMPLES OR TEST_SIMPLE_VTK)
     # -- check C++11 --
     include(CheckCXXCompilerFlag)
     CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
@@ -35,11 +36,11 @@ if(BUILD_SIMPLE_XDMF_EXAMPLES OR TEST_SIMPLE_XDMF)
     include_directories( ${Boost_INCLUDE_DIRS} )
 endif()
 
-if(BUILD_SIMPLE_XDMF_EXAMPLES)
+if(BUILD_SIMPLE_VTK_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-if(TEST_SIMPLE_XDMF)
+if(TEST_SIMPLE_VTK)
     enable_testing()
     add_subdirectory(${CMAKE_SOURCE_DIR}/googletest)
     include_directories(${CMAKE_SOURCE_DIR}/googletest/googletest/include)
