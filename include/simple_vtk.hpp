@@ -114,8 +114,6 @@ class SimpleVTK {
             }
             addIndent();
             insertIndent();
-
-            setCurrentTag("Inner");
         }
 
         void endInnerElement() {
@@ -350,9 +348,11 @@ class SimpleVTK {
             endCells();
         }
 
-        void beginDataArray(const std::string name) {
+        void beginDataArray(const std::string name, const std::string number_type, const std::string format) {
             beginElement("DataArray");
             setName(name);
+            setNumberType(number_type);
+            setFormat(format);
         }
         void endDataArray() { endElement("DataArray"); }
 
@@ -566,16 +566,16 @@ class SimpleVTK {
             buffer += " compressor=\"" + compressor + "\"";
         }
 
-        void setFormat(const std::string& type = "XML") {
+        void setFormat(const std::string& type) {
             if (checkIsValidType<format_type_length>(FormatType, type)) {
-                buffer += " Format=\"" + type + "\"";
+                buffer += " format=\"" + type + "\"";
             } else {
                 std::string error_message = "[SIMPLE VTK ERROR] Invalid Format type = " + type + " is passed to setFormat().";
                 throw std::invalid_argument(error_message);
             }
         }
 
-        void setType(const std::string& type = "Float32") {
+        void setNumberType(const std::string& type) {
             if (checkIsValidType<number_type_length>(NumberType, type)) {
                 buffer += " type=\"" + type + "\"";
             } else {
