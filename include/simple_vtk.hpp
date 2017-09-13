@@ -46,31 +46,15 @@ class SimpleVTK {
 
 
         // store current processing tag information for type validation
-        enum class TAG {
-            VTKFile,
-            ImageData, RectlinearGrid, StructuredGrid, PolyData, UnstructuredGrid,
-            PImageData, PRectlinearGrid, PStructuredGrid, PPolyData, PUnstructuredGrid,
-            Piece, PointData, CellData, Points, Cells, Coordinates, Verts, Polys, Strips, Lines,
-            PPointData, PCellData, PPoints, PCells, PCoordinates,
-            DataArray, PDataArray,
-            Inner, Unknown
-        };
-        TAG current_tag;
+        std::string current_tag;
 
         void setCurrentTag(const std::string& tag) {
-            if (tag == "VTKFile") {
-                current_tag = TAG::VTKFile;
-            } else if (tag == "DataArray") {
-                current_tag = TAG::DataArray;
-            } else if (tag == "PDataArray") {
-                current_tag = TAG::PDataArray;
-            } else if (tag == "Inner") {
-                current_tag = TAG::Inner;
-            } else {
-                current_tag = TAG::Unknown;
-            }
+            current_tag = tag;
         }
 
+        std::string getCurrentTag() {
+            return current_tag;
+        }
 
         // Initialize Current State
         void initialize() {
@@ -78,9 +62,9 @@ class SimpleVTK {
             setIndentSpaceSize();
             endEdit = false;
             content = header;
+            current_tag = "VTKFile";
             current_vtk_type = "";
         }
-
 
         // Structure Management
         void beginElement(const std::string& tag) {
@@ -92,7 +76,7 @@ class SimpleVTK {
             insertIndent();
             setCurrentTag(tag);
 
-            buffer += "<" + getCurrentTagString();
+            buffer += "<" + getCurrentTag();
         }
 
         void endElement(const std::string& tag) {
@@ -101,7 +85,7 @@ class SimpleVTK {
             }
 
             insertIndent();
-            buffer += "</" + convertTagString(tag);
+            buffer += "</" + tag;
             commitBuffer();
 
             backIndent();
@@ -182,46 +166,21 @@ class SimpleVTK {
 
         bool checkType(const std::string& type) {
             bool isValid = false;
-            switch (current_tag) {
-                case TAG::VTKFile:
-                    isValid = checkIsValidType<VTKFile_type_length>(VTKFileType, type);
-                    break;
-                case TAG::DataArray:
-                    isValid = checkIsValidType<number_type_length>(NumberType, type);
-                    break;
-                case TAG::PDataArray:
-                    isValid = checkIsValidType<number_type_length>(NumberType, type);
-                    break;
-                default:
-                    isValid = true;
-                    break;
+
+            if (current_tag == "VTKFile") {
+                isValid = checkIsValidType<VTKFile_type_length>(VTKFileType, type);
+            } else if (current_tag == "DataArray" || current_tag == "PDataArray") {
+                isValid = checkIsValidType<number_type_length>(NumberType, type);
+            } else {
+                isValid = true;
             }
 
             if (!isValid) {
-                std::string tagString = getCurrentTagString();
-
-                std::string error_message = "[SIMPLE VTK ERROR] Invalid " + tagString + " type = " + type + " is passed to.";
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid " + current_tag + " type = " + type + " is passed to.";
                 throw std::invalid_argument(error_message);
             }
 
             return isValid;
-        }
-
-        std::string getCurrentTagString() {
-            switch (current_tag) {
-                case TAG::VTKFile:
-                    return "VTKFile";
-                default:
-                    return "";
-            }
-        }
-
-        std::string convertTagString(const std::string& tag) {
-            if (tag == "StructuredTopology" || tag == "UnstructuredTopology") {
-                return "Topology";
-            } else {
-                return tag;
-            }
         }
 
         std::string getConventionalFileExtensionFromCurrentVTKType() const {
@@ -261,7 +220,7 @@ class SimpleVTK {
             if (checkType(type)) {
                 buffer += " type=\"" + type + "\"";
 
-                if (current_tag == TAG::VTKFile) {
+                if (current_tag == "VTKFile") {
                     current_vtk_type = type;
                 }
             }
@@ -274,11 +233,11 @@ class SimpleVTK {
         void convertFromVariadicArgsToStringInternal(std::string& buffer, First&& first, Rests&&... rests) {
             std::stringstream ss;
             ss << first;
-            buffer = ss.str() + buffer;
+            buffer = buffer + ss.str();
 
             constexpr std::size_t parameter_pack_size = sizeof...(Rests);
             if (parameter_pack_size > 0) {
-                buffer = " " + buffer;
+                buffer = buffer + " ";
                 convertFromVariadicArgsToStringInternal(buffer, std::forward<Rests>(rests)...);
             }
         }
@@ -355,6 +314,14 @@ class SimpleVTK {
         void endVTK() {
             endElement("VTKFile");
             endEdit = true;
+        }
+
+        void beginContent() {
+            beginElement(current_vtk_type);
+        }
+
+        void endContent() {
+            endElement(current_vtk_type);
         }
 
         template<typename T>
@@ -584,18 +551,22 @@ class SimpleVTK {
             }
         }
 
-        //*/
-
         template<typename... Args>
-        void setDimensions(Args&&... args) {
-            std::string dimString = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Dimensions=\"" + dimString + "\"";
+        void setWholeExtent(Args&&... args) {
+            std::string whole_extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " WholeExtent=\"" + whole_extent + "\"";
         }
 
         template<typename... Args>
-        void setNumberOfElements(Args&&... args) {
-            std::string dimString = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " NumberOfElements=\"" + dimString + "\"";
+        void setOrigin(Args&&... args) {
+            std::string origin = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " Origin=\"" + origin + "\"";
+        }
+
+        template<typename... Args>
+        void setSpacing(Args&&... args) {
+            std::string spacing = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " Spacing=\"" + spacing + "\"";
         }
 
         /*/

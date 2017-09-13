@@ -14,6 +14,13 @@ namespace TEST_SIMPLE_VTK {
             const std::string header = R"(<?xml version="1.0" ?>
 )";
             const std::string indent = "    ";
+
+            void compareCurrentContentAndTarget(std::string target) {
+                std::cout << "----- current content -----" << std::endl;
+                std::cout << gen.getRawString() << std::endl;
+                std::cout << "----- target content -----" << std::endl;
+                std::cout << target << std::endl;
+            }
     };
 }
 
