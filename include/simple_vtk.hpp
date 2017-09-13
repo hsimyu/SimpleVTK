@@ -419,6 +419,43 @@ class SimpleVTK {
             endInnerElement();
         }
 
+        template<typename T>
+        void add3DArray(T*** values_ptr, const int nx, const int ny, const int nz) {
+            beginInnerElement();
+
+            std::stringstream ss;
+
+            size_t itr = 1;
+            size_t size = nx * ny * nz;
+
+            for(size_t k = 1; k <= nz; ++k) {
+                for(size_t j = 1; j <= ny; ++j) {
+                    for(size_t i = 1; i <= nx; ++i) {
+                        ss << values_ptr[i - 1][j - 1][k - 1];
+
+                        if (itr < size) {
+                            ss << " ";
+
+                            if (itr % innerElementPerLine == 0) {
+                                buffer += ss.str() + newLine;
+                                insertIndent();
+                                ss.str("");
+                                ss.clear(std::stringstream::goodbit);
+                            }
+                        }
+
+                        ++itr;
+                    }
+                }
+            }
+
+            if (ss.str() != "") {
+                buffer += ss.str() + newLine;
+            }
+
+            endInnerElement();
+        }
+
         template<typename T, size_t N>
         void addArray(const std::array<T, N>& values) {
             beginInnerElement();
