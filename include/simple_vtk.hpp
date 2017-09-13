@@ -278,7 +278,15 @@ class SimpleVTK {
             double dz = 0.0;
         };
 
+        struct ExtentManagementStatus {
+            bool extent_initialized = false;
+            bool origin_initialized = false;
+            bool spacing_initialized = false;
+            bool enable = false;
+        };
+
         ExtentInfo_t base_extent;
+        ExtentManagementStatus manage_extent_status;
 
     public:
         SimpleVTK() {
@@ -766,6 +774,7 @@ class SimpleVTK {
             base_extent.ymax = ymax;
             base_extent.zmin = zmin;
             base_extent.zmax = zmax;
+            manage_extent_status.extent_initialized = true;
         }
 
         template<typename T>
@@ -773,6 +782,7 @@ class SimpleVTK {
             base_extent.x0 = x0;
             base_extent.y0 = y0;
             base_extent.z0 = z0;
+            manage_extent_status.origin_initialized = true;
         }
 
         template<typename T>
@@ -780,10 +790,17 @@ class SimpleVTK {
             base_extent.dx = dx;
             base_extent.dy = dy;
             base_extent.dz = dz;
+            manage_extent_status.spacing_initialized = true;
         }
 
         ExtentInfo_t getBaseExtent() const {
             return base_extent;
+        }
+
+        void enableExtentManagement() { manage_extent_status.enable = true; }
+        void disableExtentManagement() { manage_extent_status.enable = false; }
+        bool isExtentManagementEnable() const {
+            return (manage_extent_status.enable && manage_extent_status.extent_initialized && manage_extent_status.origin_initialized && manage_extent_status.spacing_initialized);
         }
 
         // helper functoins
