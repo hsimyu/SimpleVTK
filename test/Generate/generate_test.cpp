@@ -76,6 +76,8 @@ namespace TEST_SIMPLE_VTK {
             gen.setOrigin(0.0, 0.5, 0.0);
             gen.setSpacing(1.0, 1.1, 1.0);
                 gen.beginPiece();
+                gen.setNumberOfPoints(3);
+                gen.setNumberOfCells("3");
                 gen.setExtent(0, 2, 0, 2, 0, 2);
                     gen.beginPointData();
                     gen.setScalars("potential");
@@ -93,7 +95,7 @@ namespace TEST_SIMPLE_VTK {
             header +
             "<VTKFile type=\"ImageData\">\n" +
                 indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0.5 0\" Spacing=\"1 1.1 1\">\n" +
-                indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
+                indent + indent + "<Piece NumberOfPoints=\"3\" NumberOfCells=\"3\" Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<PointData Scalars=\"potential\" Vectors=\"efield\">\n" +
                 indent + indent + indent + "</PointData>\n" +
                 indent + indent + indent + "<CellData Scalars=\"density\">\n" +

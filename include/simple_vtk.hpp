@@ -575,6 +575,18 @@ class SimpleVTK {
             }
         }
 
+        void setNumberOfPoints(const std::string& num) { buffer += " NumberOfPoints=\"" + num + "\""; }
+        void setNumberOfCells(const std::string& num) { buffer += " NumberOfCells=\"" + num + "\""; }
+        void setNumberOfComponents(const std::string& num) { buffer += " NumberOfComponents=\"" + num + "\""; }
+
+        void setNumberOfPoints(const int num) { buffer += " NumberOfPoints=\"" + std::to_string(num) + "\""; }
+        void setNumberOfCells(const int num) { buffer += " NumberOfCells=\"" + std::to_string(num) + "\""; }
+        void setNumberOfComponents(const int num) { buffer += " NumberOfComponents=\"" + std::to_string(num) + "\""; }
+
+        void setOffset(const std::string& num) {
+            buffer += " offset=\"" + num + "\"";
+        }
+
         //! For PointData and CellData
         void setScalars(const std::string& name) {
             buffer += " Scalars=\"" + name + "\"";
