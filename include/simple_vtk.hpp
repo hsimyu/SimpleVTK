@@ -351,6 +351,9 @@ class SimpleVTK {
         void beginBlock() { beginElement("Block"); }
         void endBlock() { endElement("Block"); }
 
+        void beginDataSet() { beginElement("DataSet"); }
+        void endDataSet() { endElement("DataSet"); }
+
         void beginDataArray(const std::string name, const std::string number_type, const std::string format) {
             beginElement("DataArray");
             setName(name);
@@ -660,6 +663,18 @@ class SimpleVTK {
             buffer += " level=\"" + std::to_string(level) + "\"";
         }
 
+        void setIndex(const std::string& index) {
+            buffer += " index=\"" + index + "\"";
+        }
+
+        void setIndex(const int index) {
+            buffer += " index=\"" + std::to_string(index) + "\"";
+        }
+
+        void setFile(const std::string file_path) {
+            buffer += " file=\"" + file_path + "\"";
+        }
+
         void setOffset(const std::string& num) {
             buffer += " offset=\"" + num + "\"";
         }
@@ -703,6 +718,12 @@ class SimpleVTK {
         void setSpacing(Args&&... args) {
             std::string spacing = convertFromVariadicArgsToString(std::forward<Args>(args)...);
             buffer += " Spacing=\"" + spacing + "\"";
+        }
+
+        template<typename... Args>
+        void setAMRBox(Args&&... args) {
+            std::string amr_box = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " amr_box=\"" + amr_box + "\"";
         }
 
         /*/
