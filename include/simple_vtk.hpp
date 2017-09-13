@@ -332,6 +332,22 @@ class SimpleVTK {
             endElement("Piece");
         }
 
+        void beginPointData() {
+            beginElement("PointData");
+        }
+
+        void endPointData() {
+            endElement("PointData");
+        }
+
+        void beginCellData() {
+            beginElement("CellData");
+        }
+
+        void endCellData() {
+            endElement("CellData");
+        }
+
         template<typename T>
         void addArray(const T* values_ptr, const int N) {
             beginInnerElement();
