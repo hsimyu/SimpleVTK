@@ -120,4 +120,26 @@ namespace TEST_SIMPLE_VTK {
         compareCurrentContentAndTarget(target);
         ASSERT_EQ(gen.getRawString(), target);
     }
+
+    TEST_F(Test1, check_base_extent) {
+        gen.changeBaseExtent(0, 2, 0, 2, 0, 2);
+        gen.changeBaseOrigin(0.0, 0.0, 0.0);
+        gen.changeBaseSpacing(1.0, 0.5, 0.25);
+
+        auto extent = gen.getBaseExtent();
+        ASSERT_EQ(extent.xmin, 0);
+        ASSERT_EQ(extent.xmax, 2);
+        ASSERT_EQ(extent.ymin, 0);
+        ASSERT_EQ(extent.ymax, 2);
+        ASSERT_EQ(extent.zmin, 0);
+        ASSERT_EQ(extent.zmax, 2);
+
+        ASSERT_EQ(extent.x0, 0.0);
+        ASSERT_EQ(extent.y0, 0.0);
+        ASSERT_EQ(extent.z0, 0.0);
+
+        ASSERT_EQ(extent.dx, 1.0);
+        ASSERT_EQ(extent.dy, 0.5);
+        ASSERT_EQ(extent.dz, 0.25);
+    }
 }

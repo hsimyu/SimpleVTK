@@ -26,7 +26,6 @@ class SimpleVTK {
         unsigned int innerElementPerLine = 10;
         std::string current_vtk_type;
 
-
         // indent management
         std::string indent;
         unsigned int currentIndentation = -1;
@@ -262,6 +261,24 @@ class SimpleVTK {
                 addItemInternal(ss, std::forward<Rests>(rests)...);
             }
         }
+
+        // Base Extent Management
+        struct ExtentInfo_t {
+            int xmin = 0;
+            int xmax = 0;
+            int ymin = 0;
+            int ymax = 0;
+            int zmin = 0;
+            int zmax = 0;
+            double x0 = 0.0;
+            double y0 = 0.0;
+            double z0 = 0.0;
+            double dx = 0.0;
+            double dy = 0.0;
+            double dz = 0.0;
+        };
+
+        ExtentInfo_t base_extent;
 
     public:
         SimpleVTK() {
@@ -739,6 +756,34 @@ class SimpleVTK {
             buffer += ss.str() + newLine;
 
             endInnerElement();
+        }
+
+        // BaseExtent Setting Functions
+        void changeBaseExtent(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
+            base_extent.xmin = xmin;
+            base_extent.xmax = xmax;
+            base_extent.ymin = ymin;
+            base_extent.ymax = ymax;
+            base_extent.zmin = zmin;
+            base_extent.zmax = zmax;
+        }
+
+        template<typename T>
+        void changeBaseOrigin(const T x0, const T y0, const T z0) {
+            base_extent.x0 = x0;
+            base_extent.y0 = y0;
+            base_extent.z0 = z0;
+        }
+
+        template<typename T>
+        void changeBaseSpacing(const T dx, const T dy, const T dz) {
+            base_extent.dx = dx;
+            base_extent.dy = dy;
+            base_extent.dz = dz;
+        }
+
+        ExtentInfo_t getBaseExtent() const {
+            return base_extent;
         }
 
         // helper functoins
