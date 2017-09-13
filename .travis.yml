@@ -1,8 +1,9 @@
 language: cpp
-script: 
+before_script:
   - mkdir build 
   - cd build 
   - cmake .. -DTEST_SIMPLE_VTK=ON -DBUILD_SIMPLE_VTK_EXAMPLES=ON
+script: 
   - make
   - ctest -V
 compiler:

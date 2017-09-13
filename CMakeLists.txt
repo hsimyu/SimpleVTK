@@ -32,8 +32,8 @@ if(BUILD_SIMPLE_VTK_EXAMPLES OR TEST_SIMPLE_VTK)
         message(STATUS "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
     endif()
 
-    find_package( Boost )
-    include_directories( ${Boost_INCLUDE_DIRS} )
+    # find_package( Boost )
+    # include_directories( ${Boost_INCLUDE_DIRS} )
 endif()
 
 if(BUILD_SIMPLE_VTK_EXAMPLES)
