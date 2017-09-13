@@ -350,7 +350,10 @@ class SimpleVTK {
             endCells();
         }
 
-        void beginDataArray() { beginElement("DataArray"); }
+        void beginDataArray(const std::string name) {
+            beginElement("DataArray");
+            setName(name);
+        }
         void endDataArray() { endElement("DataArray"); }
 
         //! Inner array inserters
