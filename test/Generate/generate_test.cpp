@@ -30,7 +30,7 @@ namespace TEST_SIMPLE_VTK {
     TEST_F(Test1, make_vtk_imagedata_with_some_extent) {
         gen.beginVTK("ImageData");
             gen.beginContent();
-            gen.setWholeExtent(0, 2, 0, 2, 0 ,2);
+            gen.setWholeExtent(0, 2, 0, 2, 0, 2);
             gen.setOrigin(0.0, 0.5, 0.0);
             gen.setSpacing(1.0, 1.1, 1.0);
             gen.endContent();
@@ -40,6 +40,30 @@ namespace TEST_SIMPLE_VTK {
             header +
             "<VTKFile type=\"ImageData\">\n" +
                 indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0.5 0\" Spacing=\"1 1.1 1\">\n" + indent + "</ImageData>\n"+
+            "</VTKFile>\n";
+        compareCurrentContentAndTarget(target);
+        ASSERT_EQ(gen.getRawString(), target);
+    }
+
+    TEST_F(Test1, make_vtk_imagedata_piece) {
+        gen.beginVTK("ImageData");
+            gen.beginContent();
+            gen.setWholeExtent(0, 2, 0, 2, 0, 2);
+            gen.setOrigin(0.0, 0.5, 0.0);
+            gen.setSpacing(1.0, 1.1, 1.0);
+                gen.beginPiece();
+                gen.setExtent(0, 2, 0, 2, 0, 2);
+                gen.endPiece();
+            gen.endContent();
+        gen.endVTK();
+
+        const std::string target = 
+            header +
+            "<VTKFile type=\"ImageData\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0.5 0\" Spacing=\"1 1.1 1\">\n" +
+                indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
+                indent + indent + "</Piece>\n" +
+                indent + "</ImageData>\n"+
             "</VTKFile>\n";
         compareCurrentContentAndTarget(target);
         ASSERT_EQ(gen.getRawString(), target);

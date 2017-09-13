@@ -324,6 +324,14 @@ class SimpleVTK {
             endElement(current_vtk_type);
         }
 
+        void beginPiece() {
+            beginElement("Piece");
+        }
+
+        void endPiece() {
+            endElement("Piece");
+        }
+
         template<typename T>
         void addArray(const T* values_ptr, const int N) {
             beginInnerElement();
@@ -555,6 +563,12 @@ class SimpleVTK {
         void setWholeExtent(Args&&... args) {
             std::string whole_extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
             buffer += " WholeExtent=\"" + whole_extent + "\"";
+        }
+
+        template<typename... Args>
+        void setExtent(Args&&... args) {
+            std::string extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " Extent=\"" + extent + "\"";
         }
 
         template<typename... Args>
