@@ -7,6 +7,7 @@ int main() {
     const int ny = 3;
 
     gen.beginVTK("ImageData");
+    std::cout << gen.getRawString() << std::endl;
     gen.generate("generate_vtk");
     // gen.beginDomain("Domain1");
     //     gen.beginGrid("Grid1");

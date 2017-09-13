@@ -148,33 +148,24 @@ class SimpleVTK {
 
 
         // Type checking
-        /*/
-        static constexpr int dataItemTypeLength = 6;
-        static constexpr int gridTypeLength = 4;
-        static constexpr int structuredTopologyTypeLength = 6;
-        static constexpr int unstructuredTopologyTypeLength = 17;
-        static constexpr int geometryTypeLength = 6;
-        static constexpr int attributeTypeLength = 5;
-        static constexpr int attributeCenterLength = 5;
-        static constexpr int setTypeLength = 4;
-        static constexpr int timeTypeLength = 4;
-        static constexpr int formatTypeLength = 3;
-        static constexpr int numberTypeLength = 5;
-        static constexpr int precisionTypeLength = 4;
+        static constexpr int VTKFile_type_length = 12;
+        std::array<std::string, VTKFile_type_length> VTKFileType {{
+            "ImageData", "RectlinearGrid", "StructuredGrid", "PolyData", "UnstructuredGrid", "vtkHierarchicalBoxDataSet",
+            "PImageData", "PRectlinearGrid", "PStructuredGrid", "PPolyData", "PUnstructuredGrid", "PvtkHierarchicalBoxDataSet",
+        }};
 
-        std::array<std::string, dataItemTypeLength> DataItemType {{"Uniform", "Collection", "Tree", "HyperSlab", "Coordinates", "Function"}};
-        std::array<std::string, gridTypeLength> GridType {{"Uniform", "Collection", "Tree", "Subset"}};
-        std::array<std::string, structuredTopologyTypeLength> StructuredTopologyType {{"2DSMesh", "2DRectMesh", "2DCoRectMesh", "3DSMesh", "3DRectMesh", "3DCoRectMesh"}};
-        std::array<std::string, unstructuredTopologyTypeLength> UnstructuredTopologyType {{"Polyvertex", "Polyline", "Polygon", "Triangle", "Quadrilateral", "Tetrahedron", "Pyramid", "Wedge", "Hexahedron", "Edge_3", "Tri_6", "Quad_8", "Tet_10", "Pyramid_13", "Wedge_15", "Hex_20", "Mixed"}};
-        std::array<std::string, geometryTypeLength> GeometryType {{"XYZ", "XY", "X_Y_Z", "VXVYVZ", "ORIGIN_DXDYDZ", "ORIGIN_DXDY"}};
-        std::array<std::string, attributeTypeLength> AttributeType {{"Scalar", "Vector", "Tensor", "Tensor6", "Matrix"}};
-        std::array<std::string, attributeCenterLength> AttributeCenter {{"Node", "Edge", "Face", "Cell", "Grid"}};
-        std::array<std::string, setTypeLength> SetType {{"Node", "Edge", "Face", "Cell"}};
-        std::array<std::string, timeTypeLength> TimeType {{"Single", "HyperSlab", "List", "Range"}};
-        std::array<std::string, formatTypeLength> FormatType {{"XML", "HDF", "Binary"}};
-        std::array<std::string, numberTypeLength> NumberType {{"Float", "Int", "UInt", "Char", "UChar"}};
-        std::array<std::string, precisionTypeLength> PrecisionType {{"1", "2", "4", "8"}};
-        //*/
+        static constexpr int format_type_length = 3;
+        std::array<std::string, format_type_length> FormatType {{"ascii", "binary", "appended"}};
+
+        static constexpr int byte_order_type_length = 2;
+        std::array<std::string, byte_order_type_length> ByteOrderType {{"LittleEndian", "BigEndian"}};
+
+        static constexpr int number_type_length = 10;
+        std::array<std::string, number_type_length> NumberType {{
+            "Float32", "Float64",
+            "Int8", "Int16", "Int32", "Int64",
+            "UInt8", "UInt16", "UInt32", "UInt64"
+        }};
 
         template<int N>
         bool checkIsValidType(const std::array<std::string, N>& valid_types, const std::string& specified_type) {
@@ -193,8 +184,13 @@ class SimpleVTK {
             bool isValid = false;
             switch (current_tag) {
                 case TAG::VTKFile:
-                    // isValid = checkIsValidType<gridTypeLength>(GridType, type);
-                    isValid = true;
+                    isValid = checkIsValidType<VTKFile_type_length>(VTKFileType, type);
+                    break;
+                case TAG::DataArray:
+                    isValid = checkIsValidType<number_type_length>(NumberType, type);
+                    break;
+                case TAG::PDataArray:
+                    isValid = checkIsValidType<number_type_length>(NumberType, type);
                     break;
                 default:
                     isValid = true;
@@ -215,30 +211,6 @@ class SimpleVTK {
             switch (current_tag) {
                 case TAG::VTKFile:
                     return "VTKFile";
-                /*/
-                case TAG::DataItem:
-                    return "DataItem";
-                case TAG::StructuredTopology:
-                    return "Topology";
-                case TAG::UnstructuredTopology:
-                    return "Topology";
-                case TAG::Geometry:
-                    return "Geometry";
-                case TAG::Attribute:
-                    return "Attribute";
-                case TAG::Set:
-                    return "Set";
-                case TAG::Time:
-                    return "Time";
-                case TAG::Information:
-                    return "Information";
-                case TAG::Domain:
-                    return "Domain";
-                case TAG::Inner:
-                    return "Inner";
-                case TAG::Xdmf:
-                    return "Xdmf";
-                /*/
                 default:
                     return "";
             }
@@ -287,7 +259,7 @@ class SimpleVTK {
             if (type == "") return;
 
             if (checkType(type)) {
-                buffer += " " + "type=\"" + type + "\"";
+                buffer += " type=\"" + type + "\"";
 
                 if (current_tag == TAG::VTKFile) {
                     current_vtk_type = type;
@@ -581,78 +553,25 @@ class SimpleVTK {
             buffer += " version=\"" + _version + "\"";
         }
 
-        /*/
         void setFormat(const std::string& type = "XML") {
-            if (checkIsValidType<formatTypeLength>(FormatType, type)) {
+            if (checkIsValidType<format_type_length>(FormatType, type)) {
                 buffer += " Format=\"" + type + "\"";
             } else {
-                std::string error_message = "[SIMPLE XDMF ERROR] Invalid Format type = " + type + " is passed to setFormat().";
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid Format type = " + type + " is passed to setFormat().";
                 throw std::invalid_argument(error_message);
             }
         }
 
-        void setPrecision(const std::string& type = "4") {
-            if (checkIsValidType<precisionTypeLength>(PrecisionType, type)) {
-                buffer += " Precision=\"" + type + "\"";
+        void setType(const std::string& type = "Float32") {
+            if (checkIsValidType<number_type_length>(NumberType, type)) {
+                buffer += " type=\"" + type + "\"";
             } else {
-                std::string error_message = "[SIMPLE XDMF ERROR] Invalid Precision type = " + type + " is passed to setPrecision().";
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid Number type = " + type + " is passed to setType().";
                 throw std::invalid_argument(error_message);
             }
         }
 
-        void setNumberType(const std::string& type = "Float") {
-            if (checkIsValidType<numberTypeLength>(NumberType, type)) {
-                buffer += " NumberType=\"" + type + "\"";
-            } else {
-                std::string error_message = "[SIMPLE XDMF ERROR] Invalid Number type = " + type + " is passed to setNumberType().";
-                throw std::invalid_argument(error_message);
-            }
-        }
-
-        void setCenter(const std::string& type = "Node") {
-            if (current_tag != TAG::Attribute) {
-                std::cerr << "[SIMPLE XDMF ERROR] setCenter() cannot be called when current Tag is not Attribute." << std::endl;
-                return;
-            }
-
-            if (checkIsValidType<attributeCenterLength>(AttributeCenter, type)) {
-                buffer += " Center=\"" + type + "\"";
-            } else {
-                std::string error_message = "[SIMPLE XDMF ERROR] Invalid Center type = " + type + " is passed to setCenter().";
-                throw std::invalid_argument(error_message);
-            }
-        }
-
-        void setFunction(const std::string& func) {
-            if (current_tag != TAG::DataItem) {
-                std::cerr << "[SIMPLE XDMF ERROR] setFunction() cannot be called when current Tag is not DataItem." << std::endl;
-                return;
-            }
-            buffer += " Function=\"" + func + "\"";
-        }
-
-        void setSection(const std::string& sect) {
-            if (current_tag != TAG::Grid) {
-                std::cerr << "[SIMPLE XDMF ERROR] setSection() cannot be called when current Tag is not Grid." << std::endl;
-                return;
-            }
-
-            if (sect == "DataItem" || sect == "All") {
-                buffer += " Section=\"" + sect + "\"";
-            } else {
-                std::string error_message = "[SIMPLE XDMF ERROR] Invalid Section type = " + sect + " is passed to setSection().";
-                throw std::invalid_argument(error_message);
-            }
-        }
-
-        void setValue(const std::string& value) {
-            if (current_tag != TAG::Time && current_tag != TAG::Information) {
-                std::cerr << "[SIMPLE XDMF ERROR] setValue() cannot be called when current Tag is not Time and Information." << std::endl;
-                return;
-            }
-            buffer += " Value=\"" + value + "\"";
-        }
-        /*/
+        //*/
 
         template<typename... Args>
         void setDimensions(Args&&... args) {
