@@ -149,6 +149,9 @@ class SimpleVTK {
             "UInt8", "UInt16", "UInt32", "UInt64"
         }};
 
+        static constexpr int encoding_type_length = 2;
+        std::array<std::string, encoding_type_length> EncodingType {{"base64", "raw"}};
+
         template<int N>
         bool checkIsValidType(const std::array<std::string, N>& valid_types, const std::string& specified_type) {
             bool is_valid = false;
@@ -353,6 +356,9 @@ class SimpleVTK {
 
         void beginDataSet() { beginElement("DataSet"); }
         void endDataSet() { endElement("DataSet"); }
+
+        void beginAppendData() { beginElement("AppendData"); }
+        void endAppendData() { endElement("AppendData"); }
 
         void beginDataArray(const std::string name, const std::string number_type, const std::string format) {
             beginElement("DataArray");
@@ -623,6 +629,15 @@ class SimpleVTK {
                 buffer += " type=\"" + type + "\"";
             } else {
                 std::string error_message = "[SIMPLE VTK ERROR] Invalid Number type = " + type + " is passed to setType().";
+                throw std::invalid_argument(error_message);
+            }
+        }
+
+        void setEncoding(const std::string& encoding) {
+            if (checkIsValidType<encoding_type_length>(EncodingType, encoding)) {
+                buffer += " encoding=\"" + encoding + "\"";
+            } else {
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid Encoding type = " + encoding + " is passed to setEncoding().";
                 throw std::invalid_argument(error_message);
             }
         }
