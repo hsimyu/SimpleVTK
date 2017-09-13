@@ -316,38 +316,44 @@ class SimpleVTK {
             endEdit = true;
         }
 
-        void beginContent() {
-            beginElement(current_vtk_type);
+        void beginContent() { beginElement(current_vtk_type); }
+        void endContent() { endElement(current_vtk_type); }
+
+        void beginPiece() { beginElement("Piece"); }
+        void endPiece() { endElement("Piece"); }
+
+        void beginPointData() { beginElement("PointData"); }
+        void endPointData() { endElement("PointData"); }
+        void addPointData() {
+            beginPointData();
+            endPointData();
         }
 
-        void endContent() {
-            endElement(current_vtk_type);
+        void beginCellData() { beginElement("CellData"); }
+        void endCellData() { endElement("CellData"); }
+        void addCellData() {
+            beginCellData();
+            endCellData();
         }
 
-        void beginPiece() {
-            beginElement("Piece");
+        void beginPoints() { beginElement("Points"); }
+        void endPoints() { endElement("Points"); }
+        void addPoints() {
+            beginPoints();
+            endPoints();
         }
 
-        void endPiece() {
-            endElement("Piece");
+        void beginCells() { beginElement("Cells"); }
+        void endCells() { endElement("Cells"); }
+        void addCells() {
+            beginCells();
+            endCells();
         }
 
-        void beginPointData() {
-            beginElement("PointData");
-        }
+        void beginDataArray() { beginElement("DataArray"); }
+        void endDataArray() { endElement("DataArray"); }
 
-        void endPointData() {
-            endElement("PointData");
-        }
-
-        void beginCellData() {
-            beginElement("CellData");
-        }
-
-        void endCellData() {
-            endElement("CellData");
-        }
-
+        //! Inner array inserters
         template<typename T>
         void addArray(const T* values_ptr, const int N) {
             beginInnerElement();

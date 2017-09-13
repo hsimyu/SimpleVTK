@@ -1,5 +1,5 @@
 set(GENERATE_TEST_SRCS
-    "generate_test.cpp"
+    "imagedata_test.cpp"
 )
 
 add_executable(generate_test ${TEST_FIXTURE_SRC} ${GENERATE_TEST_SRCS})
