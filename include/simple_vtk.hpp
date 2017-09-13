@@ -368,6 +368,156 @@ class SimpleVTK {
         }
         void endDataArray() { endElement("DataArray"); }
 
+        // --- Attirbute Setting Functions ---
+        void setName(const std::string& name) {
+            if (name != "") {
+                buffer += " Name=\"" + name + "\"";
+            }
+        }
+
+        void setVersion(const std::string& _version) {
+            buffer += " version=\"" + _version + "\"";
+        }
+
+        void setByteOrder(const std::string& byte_order) {
+            if (checkIsValidType<byte_order_type_length>(ByteOrderType, byte_order)) {
+                buffer += " byte_order=\"" + byte_order + "\"";
+            } else {
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid ByteOrder type = " + byte_order + " is passed to setByteOrder().";
+                throw std::invalid_argument(error_message);
+            }
+        }
+
+        void setCompressor(const std::string& compressor) {
+            buffer += " compressor=\"" + compressor + "\"";
+        }
+
+        void setFormat(const std::string& type) {
+            if (checkIsValidType<format_type_length>(FormatType, type)) {
+                buffer += " format=\"" + type + "\"";
+            } else {
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid Format type = " + type + " is passed to setFormat().";
+                throw std::invalid_argument(error_message);
+            }
+        }
+
+        void setNumberType(const std::string& type) {
+            if (checkIsValidType<number_type_length>(NumberType, type)) {
+                buffer += " type=\"" + type + "\"";
+            } else {
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid Number type = " + type + " is passed to setType().";
+                throw std::invalid_argument(error_message);
+            }
+        }
+
+        void setEncoding(const std::string& encoding) {
+            if (checkIsValidType<encoding_type_length>(EncodingType, encoding)) {
+                buffer += " encoding=\"" + encoding + "\"";
+            } else {
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid Encoding type = " + encoding + " is passed to setEncoding().";
+                throw std::invalid_argument(error_message);
+            }
+        }
+
+        void setNumberOfPoints(const std::string& num) {
+            buffer += " NumberOfPoints=\"" + num + "\"";
+        }
+
+        void setNumberOfCells(const std::string& num) {
+            buffer += " NumberOfCells=\"" + num + "\"";
+        }
+
+        void setNumberOfComponents(const std::string& num) {
+            buffer += " NumberOfComponents=\"" + num + "\"";
+        }
+
+        void setNumberOfPoints(const int num) {
+            buffer += " NumberOfPoints=\"" + std::to_string(num) + "\"";
+        }
+
+        void setNumberOfCells(const int num) {
+            buffer += " NumberOfCells=\"" + std::to_string(num) + "\"";
+        }
+
+        void setNumberOfComponents(const int num) {
+            buffer += " NumberOfComponents=\"" + std::to_string(num) + "\"";
+        }
+
+        void setGridDescription(const std::string& desc) {
+            buffer += " grid_description=\"" + desc + "\"";
+        }
+
+        void setLevel(const std::string& level) {
+            buffer += " level=\"" + level + "\"";
+        }
+
+        void setLevel(const int level) {
+            buffer += " level=\"" + std::to_string(level) + "\"";
+        }
+
+        void setIndex(const std::string& index) {
+            buffer += " index=\"" + index + "\"";
+        }
+
+        void setIndex(const int index) {
+            buffer += " index=\"" + std::to_string(index) + "\"";
+        }
+
+        void setFile(const std::string file_path) {
+            buffer += " file=\"" + file_path + "\"";
+        }
+
+        void setOffset(const std::string& num) {
+            buffer += " offset=\"" + num + "\"";
+        }
+
+        //! For PointData and CellData
+        void setScalars(const std::string& name) {
+            buffer += " Scalars=\"" + name + "\"";
+        }
+
+        void setVectors(const std::string& name) {
+            buffer += " Vectors=\"" + name + "\"";
+        }
+
+        void setTensors(const std::string& name) {
+            buffer += " Tensors=\"" + name + "\"";
+        }
+
+        void setTCoords(const std::string& name) {
+            buffer += " TCoords=\"" + name + "\"";
+        }
+
+        template<typename... Args>
+        void setWholeExtent(Args&&... args) {
+            std::string whole_extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " WholeExtent=\"" + whole_extent + "\"";
+        }
+
+        template<typename... Args>
+        void setExtent(Args&&... args) {
+            std::string extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " Extent=\"" + extent + "\"";
+        }
+
+        template<typename... Args>
+        void setOrigin(Args&&... args) {
+            std::string origin = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " Origin=\"" + origin + "\"";
+        }
+
+        template<typename... Args>
+        void setSpacing(Args&&... args) {
+            std::string spacing = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " Spacing=\"" + spacing + "\"";
+        }
+
+        template<typename... Args>
+        void setAMRBox(Args&&... args) {
+            std::string amr_box = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " amr_box=\"" + amr_box + "\"";
+        }
+
         //! Inner array inserters
         template<typename T>
         void addArray(const T* values_ptr, const int N) {
@@ -591,224 +741,29 @@ class SimpleVTK {
             endInnerElement();
         }
 
-        // --- Attirbute Setting Functions ---
-        void setName(const std::string& name) {
-            if (name != "") {
-                buffer += " Name=\"" + name + "\"";
-            }
-        }
-
-        void setVersion(const std::string& _version) {
-            buffer += " version=\"" + _version + "\"";
-        }
-
-        void setByteOrder(const std::string& byte_order) {
-            if (checkIsValidType<byte_order_type_length>(ByteOrderType, byte_order)) {
-                buffer += " byte_order=\"" + byte_order + "\"";
-            } else {
-                std::string error_message = "[SIMPLE VTK ERROR] Invalid ByteOrder type = " + byte_order + " is passed to setByteOrder().";
-                throw std::invalid_argument(error_message);
-            }
-        }
-
-        void setCompressor(const std::string& compressor) {
-            buffer += " compressor=\"" + compressor + "\"";
-        }
-
-        void setFormat(const std::string& type) {
-            if (checkIsValidType<format_type_length>(FormatType, type)) {
-                buffer += " format=\"" + type + "\"";
-            } else {
-                std::string error_message = "[SIMPLE VTK ERROR] Invalid Format type = " + type + " is passed to setFormat().";
-                throw std::invalid_argument(error_message);
-            }
-        }
-
-        void setNumberType(const std::string& type) {
-            if (checkIsValidType<number_type_length>(NumberType, type)) {
-                buffer += " type=\"" + type + "\"";
-            } else {
-                std::string error_message = "[SIMPLE VTK ERROR] Invalid Number type = " + type + " is passed to setType().";
-                throw std::invalid_argument(error_message);
-            }
-        }
-
-        void setEncoding(const std::string& encoding) {
-            if (checkIsValidType<encoding_type_length>(EncodingType, encoding)) {
-                buffer += " encoding=\"" + encoding + "\"";
-            } else {
-                std::string error_message = "[SIMPLE VTK ERROR] Invalid Encoding type = " + encoding + " is passed to setEncoding().";
-                throw std::invalid_argument(error_message);
-            }
-        }
-
-        void setNumberOfPoints(const std::string& num) {
-            buffer += " NumberOfPoints=\"" + num + "\"";
-        }
-
-        void setNumberOfCells(const std::string& num) {
-            buffer += " NumberOfCells=\"" + num + "\"";
-        }
-
-        void setNumberOfComponents(const std::string& num) {
-            buffer += " NumberOfComponents=\"" + num + "\"";
-        }
-
-        void setNumberOfPoints(const int num) {
-            buffer += " NumberOfPoints=\"" + std::to_string(num) + "\"";
-        }
-
-        void setNumberOfCells(const int num) {
-            buffer += " NumberOfCells=\"" + std::to_string(num) + "\"";
-        }
-
-        void setNumberOfComponents(const int num) {
-            buffer += " NumberOfComponents=\"" + std::to_string(num) + "\"";
-        }
-
-        void setGridDescription(const std::string& desc) {
-            buffer += " grid_description=\"" + desc + "\"";
-        }
-
-        void setLevel(const std::string& level) {
-            buffer += " level=\"" + level + "\"";
-        }
-
-        void setLevel(const int level) {
-            buffer += " level=\"" + std::to_string(level) + "\"";
-        }
-
-        void setIndex(const std::string& index) {
-            buffer += " index=\"" + index + "\"";
-        }
-
-        void setIndex(const int index) {
-            buffer += " index=\"" + std::to_string(index) + "\"";
-        }
-
-        void setFile(const std::string file_path) {
-            buffer += " file=\"" + file_path + "\"";
-        }
-
-        void setOffset(const std::string& num) {
-            buffer += " offset=\"" + num + "\"";
-        }
-
-        //! For PointData and CellData
-        void setScalars(const std::string& name) {
-            buffer += " Scalars=\"" + name + "\"";
-        }
-
-        void setVectors(const std::string& name) {
-            buffer += " Vectors=\"" + name + "\"";
-        }
-
-        void setTensors(const std::string& name) {
-            buffer += " Tensors=\"" + name + "\"";
-        }
-
-        void setTCoords(const std::string& name) {
-            buffer += " TCoords=\"" + name + "\"";
-        }
-
-        template<typename... Args>
-        void setWholeExtent(Args&&... args) {
-            std::string whole_extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " WholeExtent=\"" + whole_extent + "\"";
-        }
-
-        template<typename... Args>
-        void setExtent(Args&&... args) {
-            std::string extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Extent=\"" + extent + "\"";
-        }
-
-        template<typename... Args>
-        void setOrigin(Args&&... args) {
-            std::string origin = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Origin=\"" + origin + "\"";
-        }
-
-        template<typename... Args>
-        void setSpacing(Args&&... args) {
-            std::string spacing = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Spacing=\"" + spacing + "\"";
-        }
-
-        template<typename... Args>
-        void setAMRBox(Args&&... args) {
-            std::string amr_box = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " amr_box=\"" + amr_box + "\"";
-        }
-
-        /*/
         // helper functoins
-        void begin2DStructuredGrid(const std::string& gridName, const std::string& topologyType, const int nx, const int ny) {
-            beginGrid(gridName);
-
-            beginStructuredTopology("", topologyType);
-            setNumberOfElements(nx, ny);
-            endStructuredTopology();
-        }
-        
-        void end2DStructuredGrid() {
-            endGrid();
+        template<typename T>
+        void addDataArray(const std::string name, const std::string number_type, const std::string format, const std::vector<T>& values) {
+            beginDataArray(name, number_type, format);
+            addVector<T>(values);
+            endDataArray();
         }
 
         template<typename T>
-        void add2DGeometryOrigin(const std::string& geomName, const T origin_x, const T origin_y, const T dx, const T dy) {
-            beginGeometory(geomName, "ORIGIN_DXDY");
-
-            // Origin
-            beginDataItem();
-            setDimensions(2);
-            setFormat("XML");
-            addItem(origin_y, origin_x);
-            endDataItem();
-
-            // Strands
-            beginDataItem();
-            setDimensions(2);
-            setFormat("XML");
-            addItem(dy, dx);
-            endDataItem();
-
-            endGeometory();
-        }
-
-        void begin3DStructuredGrid(const std::string& gridName, const std::string& topologyType, const int nx, const int ny, const int nz) {
-            beginGrid(gridName);
-
-            beginStructuredTopology("", topologyType);
-            setNumberOfElements(nx, ny, nz);
-            endStructuredTopology();
-        }
-        
-        void end3DStructuredGrid() {
-            endGrid();
+        void addPointScalars(const std::string name, const std::string number_type, const std::string format, const std::vector<T>& values) {
+            beginPointData();
+            setScalars(name);
+            addDataArray(name, number_type, format, values);
+            endPointData();
         }
 
         template<typename T>
-        void add3DGeometryOrigin(const std::string& geomName, const T origin_x, const T origin_y, const T origin_z, const T dx, const T dy, const T dz) {
-            beginGeometory(geomName, "ORIGIN_DXDYDZ");
-
-            // Origin
-            beginDataItem();
-            setDimensions(3);
-            setFormat("XML");
-            addItem(origin_z, origin_y, origin_x);
-            endDataItem();
-
-            // Strands
-            beginDataItem();
-            setDimensions(3);
-            setFormat("XML");
-            addItem(dz, dy, dx);
-            endDataItem();
-
-            endGeometory();
+        void addCellScalars(const std::string name, const std::string number_type, const std::string format, const std::vector<T>& values) {
+            beginCellData();
+            setScalars(name);
+            addDataArray(name, number_type, format, values);
+            endCellData();
         }
-        //*/
 };
 
 #endif

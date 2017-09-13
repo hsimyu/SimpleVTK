@@ -1,6 +1,10 @@
 #include <test_simple_vtk.hpp>
 
 namespace TEST_SIMPLE_VTK {
+    TEST_F(Test1, check_header) {
+        ASSERT_EQ(gen.getRawString(), header);
+    }
+
     TEST_F(Test1, check_append_data) {
         gen.beginVTK("StructuredGrid");
             gen.beginContent();

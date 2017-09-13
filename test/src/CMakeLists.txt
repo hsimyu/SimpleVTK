@@ -21,3 +21,11 @@ add_test(
     NAME HierarchicalBoxDataSetTest
     COMMAND $<TARGET_FILE:HierarchicalBoxDataSetTest>
 )
+
+set(HelperFunctions_SRCS "helperFunctionsTest.cpp")
+add_executable(HelperFunctionsTest ${TEST_FIXTURE_SRC} ${HelperFunctions_SRCS})
+target_link_libraries(HelperFunctionsTest gtest gtest_main)
+add_test(
+    NAME HelperFunctionsTest
+    COMMAND $<TARGET_FILE:HelperFunctionsTest>
+)
