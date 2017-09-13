@@ -1,5 +1,5 @@
-#ifndef SIMPLE_XDMF_HPP_INCLUDED
-#define SIMPLE_XDMF_HPP_INCLUDED
+#ifndef SIMPLE_VTK_HPP_INCLUDED
+#define SIMPLE_VTK_HPP_INCLUDED
 
 #include <iostream>
 #include <array>
@@ -15,17 +15,16 @@
 #include <boost/multi_array.hpp>
 #endif
 
-class SimpleXdmf {
+class SimpleVTK {
     private:
         const std::string header = R"(<?xml version="1.0" ?>
-<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
 )";
         std::string content;
         std::string buffer;
         std::string newLine;
-        std::string currentXpath = "";
         bool endEdit = false;
         unsigned int innerElementPerLine = 10;
+        std::string current_vtk_type;
 
 
         // indent management
@@ -47,64 +46,39 @@ class SimpleXdmf {
 
 
         // store current processing tag information for type validation
-        enum class TAG {DataItem, Grid, StructuredTopology, UnstructuredTopology, Geometry, Attribute, Set, Time, Information, Domain, Xdmf, Inner};
+        enum class TAG {
+            VTKFile,
+            ImageData, RectlinearGrid, StructuredGrid, PolyData, UnstructuredGrid,
+            PImageData, PRectlinearGrid, PStructuredGrid, PPolyData, PUnstructuredGrid,
+            Piece, PointData, CellData, Points, Cells, Coordinates, Verts, Polys, Strips, Lines,
+            PPointData, PCellData, PPoints, PCells, PCoordinates,
+            DataArray, PDataArray,
+            Inner, Unknown
+        };
         TAG current_tag;
 
         void setCurrentTag(const std::string& tag) {
-            if (tag == "Grid") {
-                current_tag = TAG::Grid;
-            } else if (tag == "DataItem") {
-                current_tag = TAG::DataItem;
-            } else if (tag == "StructuredTopology") {
-                current_tag = TAG::StructuredTopology;
-            } else if (tag == "UnstructuredTopology") {
-                current_tag = TAG::UnstructuredTopology;
-            } else if (tag == "Geometry") {
-                current_tag = TAG::Geometry;
-            } else if (tag == "Attribute") {
-                current_tag = TAG::Attribute;
-            } else if (tag == "Set") {
-                current_tag = TAG::Set;
-            } else if (tag == "Time") {
-                current_tag = TAG::Time;
-            } else if (tag == "Domain") {
-                current_tag = TAG::Domain;
-            } else if (tag == "Information") {
-                current_tag = TAG::Information;
+            if (tag == "VTKFile") {
+                current_tag = TAG::VTKFile;
+            } else if (tag == "DataArray") {
+                current_tag = TAG::DataArray;
+            } else if (tag == "PDataArray") {
+                current_tag = TAG::PDataArray;
             } else if (tag == "Inner") {
                 current_tag = TAG::Inner;
-            } else if (tag == "Xdmf") {
-                current_tag = TAG::Xdmf;
-            }
-        }
-
-
-        // Reference Management
-        // xpathMap[Name] => Xpath
-        std::map<std::string, std::string> xpathMap;
-
-        void addNewXpath(const std::string& name, const std::string& xpath) {
-            if (xpathMap.count(name) == 0) {
-                xpathMap[name] = xpath;
-            }
-        }
-
-        std::string getXpath(const std::string& name) {
-            if (xpathMap.count(name) > 0) {
-                return xpathMap[name] + "[@Name='" + name + "']";
             } else {
-                std::cerr << "[SIMPLE XDMF ERROR] Non-existente Name \"" << name << "\" passed to getXpath(). " << std::endl;
-                return "";
+                current_tag = TAG::Unknown;
             }
         }
 
-        void proceedCurrentXpath() {
-            currentXpath += "/" + getCurrentTagString();
-        }
 
-        void regressCurrentXpath() {
-            auto last_split_index = currentXpath.rfind("/");
-            currentXpath.erase(currentXpath.begin() + last_split_index, currentXpath.end());
+        // Initialize Current State
+        void initialize() {
+            setNewLineCodeLF();
+            setIndentSpaceSize();
+            endEdit = false;
+            content = header;
+            current_vtk_type = "";
         }
 
 
@@ -119,7 +93,6 @@ class SimpleXdmf {
             setCurrentTag(tag);
 
             buffer += "<" + getCurrentTagString();
-            proceedCurrentXpath();
         }
 
         void endElement(const std::string& tag) {
@@ -131,7 +104,6 @@ class SimpleXdmf {
             buffer += "</" + convertTagString(tag);
             commitBuffer();
 
-            regressCurrentXpath();
             backIndent();
         }
 
@@ -176,6 +148,7 @@ class SimpleXdmf {
 
 
         // Type checking
+        /*/
         static constexpr int dataItemTypeLength = 6;
         static constexpr int gridTypeLength = 4;
         static constexpr int structuredTopologyTypeLength = 6;
@@ -201,6 +174,7 @@ class SimpleXdmf {
         std::array<std::string, formatTypeLength> FormatType {{"XML", "HDF", "Binary"}};
         std::array<std::string, numberTypeLength> NumberType {{"Float", "Int", "UInt", "Char", "UChar"}};
         std::array<std::string, precisionTypeLength> PrecisionType {{"1", "2", "4", "8"}};
+        //*/
 
         template<int N>
         bool checkIsValidType(const std::array<std::string, N>& valid_types, const std::string& specified_type) {
@@ -218,47 +192,19 @@ class SimpleXdmf {
         bool checkType(const std::string& type) {
             bool isValid = false;
             switch (current_tag) {
-                case TAG::Grid:
-                    isValid = checkIsValidType<gridTypeLength>(GridType, type);
-                    break;
-                case TAG::DataItem:
-                    isValid = checkIsValidType<dataItemTypeLength>(DataItemType, type);
-                    break;
-                case TAG::StructuredTopology:
-                    isValid = checkIsValidType<structuredTopologyTypeLength>(StructuredTopologyType, type);
-                    break;
-                case TAG::UnstructuredTopology:
-                    isValid = checkIsValidType<unstructuredTopologyTypeLength>(UnstructuredTopologyType, type);
-                    break;
-                case TAG::Geometry:
-                    isValid = checkIsValidType<geometryTypeLength>(GeometryType, type);
-                    break;
-                case TAG::Attribute:
-                    isValid = checkIsValidType<attributeTypeLength>(AttributeType, type);
-                    break;
-                case TAG::Set:
-                    isValid = checkIsValidType<setTypeLength>(SetType, type);
-                    break;
-                case TAG::Time:
-                    isValid = checkIsValidType<timeTypeLength>(TimeType, type);
-                    break;
-                case TAG::Information:
-                    isValid = true;
-                    break;
-                case TAG::Domain:
-                    isValid = true;
-                    break;
-                case TAG::Xdmf:
+                case TAG::VTKFile:
+                    // isValid = checkIsValidType<gridTypeLength>(GridType, type);
                     isValid = true;
                     break;
                 default:
+                    isValid = true;
                     break;
             }
 
             if (!isValid) {
                 std::string tagString = getCurrentTagString();
 
-                std::string error_message = "[SIMPLE XDMF ERROR] Invalid " + tagString + " type = " + type + " is passed to.";
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid " + tagString + " type = " + type + " is passed to.";
                 throw std::invalid_argument(error_message);
             }
 
@@ -267,8 +213,9 @@ class SimpleXdmf {
 
         std::string getCurrentTagString() {
             switch (current_tag) {
-                case TAG::Grid:
-                    return "Grid";
+                case TAG::VTKFile:
+                    return "VTKFile";
+                /*/
                 case TAG::DataItem:
                     return "DataItem";
                 case TAG::StructuredTopology:
@@ -291,6 +238,7 @@ class SimpleXdmf {
                     return "Inner";
                 case TAG::Xdmf:
                     return "Xdmf";
+                /*/
                 default:
                     return "";
             }
@@ -304,16 +252,46 @@ class SimpleXdmf {
             }
         }
 
+        std::string getConventionalFileExtensionFromCurrentVTKType() const {
+            if (current_vtk_type == "ImageData") {
+                return ".vti";
+            } else if (current_vtk_type == "RectlinearGrid") {
+                return ".vtr";
+            } else if (current_vtk_type == "StructuredGrid") {
+                return ".vts";
+            } else if (current_vtk_type == "PolyData") {
+                return ".vtp";
+            } else if (current_vtk_type == "UnstructuredGrid") {
+                return ".vtu";
+            } else if (current_vtk_type == "vtkHierarchicalBoxDataSet") {
+                return ".vthb";
+            } else if (current_vtk_type == "PImageData") {
+                return ".pvti";
+            } else if (current_vtk_type == "PRectlinearGrid") {
+                return ".pvtr";
+            } else if (current_vtk_type == "PStructuredGrid") {
+                return ".pvts";
+            } else if (current_vtk_type == "PPolyData") {
+                return ".pvtp";
+            } else if (current_vtk_type == "PUnstructuredGrid") {
+                return ".pvtu";
+            } else if (current_vtk_type == "PvtkHierarchicalBoxDataSet") {
+                return ".pvthb";
+            } else {
+                return ".unknown";
+            }
+        }
+
         // Adding Valid Attributes
         void addType(const std::string& type) {
             if (type == "") return;
 
             if (checkType(type)) {
-                auto typeString = getCurrentTagString();
-                // irregular naming of data type attribute ....
-                if (typeString == "DataItem") typeString = "Item";
+                buffer += " " + "type=\"" + type + "\"";
 
-                buffer += " " + typeString + "Type=\"" + type + "\"";
+                if (current_tag == TAG::VTKFile) {
+                    current_vtk_type = type;
+                }
             }
         }
 
@@ -354,10 +332,8 @@ class SimpleXdmf {
         }
 
     public:
-        SimpleXdmf() {
-            setNewLineCodeLF();
-            setIndentSpaceSize();
-            beginXdmf();
+        SimpleVTK() {
+            initialize();
         }
 
         void setIndentSpaceSize(const int size = 4) {
@@ -389,9 +365,9 @@ class SimpleXdmf {
 
         // IO functions
         void generate(const std::string file_name) {
-            if(!endEdit) endXdmf();
+            if(!endEdit) endVTK();
 
-            std::ofstream ofs(file_name, std::ios::out);
+            std::ofstream ofs(file_name + getConventionalFileExtensionFromCurrentVTKType(), std::ios::out);
             ofs << content;
         }
 
@@ -399,113 +375,14 @@ class SimpleXdmf {
             return content;
         }
 
-        void beginXdmf() {
-            endEdit = false;
-            content = header;
-            beginElement("Xdmf");
+        void beginVTK(const std::string& type) {
+            beginElement("VTKFile");
+            addType(type);
         }
 
-        void endXdmf() {
-            endElement("Xdmf");
+        void endVTK() {
+            endElement("VTKFile");
             endEdit = true;
-        }
-
-        void beginDomain(const std::string& name = "") {
-            beginElement("Domain");
-            setName(name);
-        };
-
-        void endDomain() {
-            endElement("Domain");
-        };
-
-        void beginGrid(const std::string& name = "", const std::string& type = "Uniform") {
-            beginElement("Grid");
-            addType(type);
-            setName(name);
-        }
-
-        void endGrid() {
-            endElement("Grid");
-        }
-
-        void beginUnstructuredTopology(const std::string& name = "", const std::string& type = "Polyvertex") {
-            beginElement("UnstructuredTopology");
-            addType(type);
-            setName(name);
-        }
-
-        void endUnstructuredTopology() {
-            endElement("UnstructuredTopology");
-        }
-
-        void beginStructuredTopology(const std::string& name = "", const std::string& type = "2DCoRectMesh") {
-            beginElement("StructuredTopology");
-            addType(type);
-            setName(name);
-        }
-
-        void endStructuredTopology() {
-            endOneLineElement("StructuredTopology");
-        }
-
-        void beginGeometory(const std::string& name = "", const std::string& type = "XYZ"){
-            beginElement("Geometry");
-            addType(type);
-            setName(name);
-        }
-
-        void endGeometory(){
-            endElement("Geometry");
-        }
-
-        void beginAttribute(const std::string& name = "", const std::string& type = "Scalar"){
-            beginElement("Attribute");
-            addType(type);
-            setName(name);
-        }
-
-        void endAttribute(){
-            endElement("Attribute");
-        }
-
-        void beginDataItem(const std::string& name = "", const std::string& type = "Uniform") {
-            beginElement("DataItem");
-            addType(type);
-            setName(name);
-        }
-
-        void endDataItem() {
-            endElement("DataItem");
-        }
-
-        void beginSet(const std::string& name = "", const std::string& type = "Node") {
-            beginElement("Set");
-            addType(type);
-            setName(name);
-        }
-
-        void endSet() {
-            endElement("Set");
-        }
-
-        void beginTime(const std::string& name = "", const std::string& type = "Single") {
-            beginElement("Time");
-            addType(type);
-            setName(name);
-        }
-
-        void endTime() {
-            endElement("Time");
-        }
-
-        void beginInformation(const std::string& name = "") {
-            beginElement("Information");
-            setName(name);
-        }
-
-        void endInformation() {
-            endElement("Information");
         }
 
         template<typename T>
@@ -696,19 +573,15 @@ class SimpleXdmf {
         // --- Attirbute Setting Functions ---
         void setName(const std::string& name) {
             if (name != "") {
-                addNewXpath(name, currentXpath);
                 buffer += " Name=\"" + name + "\"";
             }
         }
 
         void setVersion(const std::string& _version) {
-            if (current_tag != TAG::Xdmf) {
-                std::cerr << "[SIMPLE XDMF ERROR] setVersion() cannot be called when current Tag is not Xdmf." << std::endl;
-                return;
-            }
-            buffer += " Version=\"" + _version + "\"";
+            buffer += " version=\"" + _version + "\"";
         }
 
+        /*/
         void setFormat(const std::string& type = "XML") {
             if (checkIsValidType<formatTypeLength>(FormatType, type)) {
                 buffer += " Format=\"" + type + "\"";
@@ -779,6 +652,7 @@ class SimpleXdmf {
             }
             buffer += " Value=\"" + value + "\"";
         }
+        /*/
 
         template<typename... Args>
         void setDimensions(Args&&... args) {
@@ -792,21 +666,7 @@ class SimpleXdmf {
             buffer += " NumberOfElements=\"" + dimString + "\"";
         }
 
-        // Reference Attribute management
-        void setReference(const std::string& xpath) {
-            buffer += " Reference=\"" + xpath + "\"";
-        }
-
-        void setReferenceFromName(const std::string& name) {
-            auto xpath = getXpath(name);
-            buffer += " Reference=\"" + xpath + "\"";
-        }
-
-        void addReferenceFromName(const std::string& name) {
-            auto xpath = getXpath(name);
-            addItem(xpath);
-        }
-
+        /*/
         // helper functoins
         void begin2DStructuredGrid(const std::string& gridName, const std::string& topologyType, const int nx, const int ny) {
             beginGrid(gridName);
@@ -873,6 +733,7 @@ class SimpleXdmf {
 
             endGeometory();
         }
+        //*/
 };
 
 #endif
