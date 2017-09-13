@@ -342,10 +342,31 @@ class SimpleVTK {
             endEdit = true;
         }
 
-        void beginContent() { beginElement(current_vtk_type); }
+        void beginContent() {
+            beginElement(current_vtk_type);
+
+            if (isExtentManagementEnable()) {
+                if (current_vtk_type != "vtkHierarchicalBoxDataSet") {
+                    setWholeExtent(base_extent.xmin, base_extent.xmax, base_extent.ymin, base_extent.ymax, base_extent.zmin, base_extent.zmax);
+                }
+
+                if (current_vtk_type == "ImageData" || current_vtk_type == "PImageData") {
+                    setOrigin(base_extent.x0, base_extent.y0, base_extent.z0);
+                    setSpacing(base_extent.dx, base_extent.dy, base_extent.dz);
+                } else if (current_vtk_type == "vtkHierarchicalBoxDataSet") {
+                    setOrigin(base_extent.x0, base_extent.y0, base_extent.z0);
+                }
+            }
+        }
         void endContent() { endElement(current_vtk_type); }
 
-        void beginPiece() { beginElement("Piece"); }
+        void beginPiece() {
+            beginElement("Piece");
+
+            if (isExtentManagementEnable()) {
+                setExtent(base_extent.xmin, base_extent.xmax, base_extent.ymin, base_extent.ymax, base_extent.zmin, base_extent.zmax);
+            }
+        }
         void endPiece() { endElement("Piece"); }
 
         void beginPointData() { beginElement("PointData"); }
