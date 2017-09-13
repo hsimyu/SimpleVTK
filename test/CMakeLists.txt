@@ -1,9 +1,5 @@
 file(GLOB TEST_FIXTURE_SRC test_fixture.cpp)
-message(STATUS "TEST_FIXTURE = ${TEST_FIXTURE_SRC}")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-set(TEST_SRC
-    "Generate"
-)
-
+set(TEST_SRC "src")
 subdirs(${TEST_SRC})
