@@ -81,9 +81,10 @@ namespace TEST_SIMPLE_VTK {
                     gen.setScalars("potential");
                     gen.setVectors("efield");
                     gen.endPointData();
+
                     gen.beginCellData();
                     gen.setScalars("density");
-                    gen.endPointData();
+                    gen.endCellData();
                 gen.endPiece();
             gen.endContent();
         gen.endVTK();

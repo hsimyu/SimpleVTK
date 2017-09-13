@@ -575,6 +575,23 @@ class SimpleVTK {
             }
         }
 
+        //! For PointData and CellData
+        void setScalars(const std::string& name) {
+            buffer += " Scalars=\"" + name + "\"";
+        }
+
+        void setVectors(const std::string& name) {
+            buffer += " Vectors=\"" + name + "\"";
+        }
+
+        void setTensors(const std::string& name) {
+            buffer += " Tensors=\"" + name + "\"";
+        }
+
+        void setTCoords(const std::string& name) {
+            buffer += " TCoords=\"" + name + "\"";
+        }
+
         template<typename... Args>
         void setWholeExtent(Args&&... args) {
             std::string whole_extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
