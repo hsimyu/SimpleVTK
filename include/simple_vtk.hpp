@@ -348,6 +348,9 @@ class SimpleVTK {
             endCells();
         }
 
+        void beginBlock() { beginElement("Block"); }
+        void endBlock() { endElement("Block"); }
+
         void beginDataArray(const std::string name, const std::string number_type, const std::string format) {
             beginElement("DataArray");
             setName(name);
@@ -621,13 +624,41 @@ class SimpleVTK {
             }
         }
 
-        void setNumberOfPoints(const std::string& num) { buffer += " NumberOfPoints=\"" + num + "\""; }
-        void setNumberOfCells(const std::string& num) { buffer += " NumberOfCells=\"" + num + "\""; }
-        void setNumberOfComponents(const std::string& num) { buffer += " NumberOfComponents=\"" + num + "\""; }
+        void setNumberOfPoints(const std::string& num) {
+            buffer += " NumberOfPoints=\"" + num + "\"";
+        }
 
-        void setNumberOfPoints(const int num) { buffer += " NumberOfPoints=\"" + std::to_string(num) + "\""; }
-        void setNumberOfCells(const int num) { buffer += " NumberOfCells=\"" + std::to_string(num) + "\""; }
-        void setNumberOfComponents(const int num) { buffer += " NumberOfComponents=\"" + std::to_string(num) + "\""; }
+        void setNumberOfCells(const std::string& num) {
+            buffer += " NumberOfCells=\"" + num + "\"";
+        }
+
+        void setNumberOfComponents(const std::string& num) {
+            buffer += " NumberOfComponents=\"" + num + "\"";
+        }
+
+        void setNumberOfPoints(const int num) {
+            buffer += " NumberOfPoints=\"" + std::to_string(num) + "\"";
+        }
+
+        void setNumberOfCells(const int num) {
+            buffer += " NumberOfCells=\"" + std::to_string(num) + "\"";
+        }
+
+        void setNumberOfComponents(const int num) {
+            buffer += " NumberOfComponents=\"" + std::to_string(num) + "\"";
+        }
+
+        void setGridDescription(const std::string& desc) {
+            buffer += " grid_description=\"" + desc + "\"";
+        }
+
+        void setLevel(const std::string& level) {
+            buffer += " level=\"" + level + "\"";
+        }
+
+        void setLevel(const int level) {
+            buffer += " level=\"" + std::to_string(level) + "\"";
+        }
 
         void setOffset(const std::string& num) {
             buffer += " offset=\"" + num + "\"";
