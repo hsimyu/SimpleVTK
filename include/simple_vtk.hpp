@@ -553,6 +553,19 @@ class SimpleVTK {
             buffer += " version=\"" + _version + "\"";
         }
 
+        void setByteOrder(const std::string& byte_order) {
+            if (checkIsValidType<byte_order_type_length>(ByteOrderType, byte_order)) {
+                buffer += " byte_order=\"" + byte_order + "\"";
+            } else {
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid ByteOrder type = " + byte_order + " is passed to setByteOrder().";
+                throw std::invalid_argument(error_message);
+            }
+        }
+
+        void setCompressor(const std::string& compressor) {
+            buffer += " compressor=\"" + compressor + "\"";
+        }
+
         void setFormat(const std::string& type = "XML") {
             if (checkIsValidType<format_type_length>(FormatType, type)) {
                 buffer += " Format=\"" + type + "\"";
