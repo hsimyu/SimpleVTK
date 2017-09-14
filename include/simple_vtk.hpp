@@ -415,7 +415,12 @@ class SimpleVTK {
             endCells();
         }
 
-        void beginBlock() { beginElement("Block"); }
+        template<typename T>
+        void beginBlock(const T level) {
+            beginElement("Block");
+            setLevel(level);
+        }
+
         void endBlock() { endElement("Block"); }
 
         void beginDataSet() { beginElement("DataSet"); }

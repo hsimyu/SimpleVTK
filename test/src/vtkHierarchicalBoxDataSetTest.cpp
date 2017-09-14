@@ -7,8 +7,7 @@ namespace TEST_SIMPLE_VTK {
             gen.setOrigin(0.0, 0.0, 0.0);
             gen.setGridDescription("XYZ");
 
-                gen.beginBlock();
-                gen.setLevel(0);
+                gen.beginBlock(0);
                 gen.setSpacing(1.0, 1.0, 1.0);
                 gen.endBlock();
 
@@ -33,8 +32,7 @@ namespace TEST_SIMPLE_VTK {
             gen.setOrigin(0.0, 0.0, 0.0);
             gen.setGridDescription("XYZ");
 
-                gen.beginBlock();
-                gen.setLevel(0);
+                gen.beginBlock(0);
                 gen.setSpacing(1.0, 1.0, 1.0);
                     gen.beginDataSet();
                     gen.setIndex(0);
