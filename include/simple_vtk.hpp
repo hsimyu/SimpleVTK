@@ -2,6 +2,7 @@
 #define SIMPLE_VTK_HPP_INCLUDED
 
 #include <iostream>
+#include <cmath>
 #include <array>
 #include <vector>
 #include <map>
@@ -421,7 +422,7 @@ class SimpleVTK {
             setLevel(level);
 
             if (isExtentManagementEnable()) {
-                const auto per_level = 1.0 / pow(base_extent.refinement_ratio, level);
+                const auto per_level = 1.0 / std::pow(base_extent.refinement_ratio, level);
                 setSpacing(base_extent.dx * per_level, base_extent.dy * per_level, base_extent.dz * per_level);
             }
         }
