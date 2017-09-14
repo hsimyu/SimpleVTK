@@ -194,4 +194,42 @@ namespace TEST_SIMPLE_VTK {
         compareCurrentContentAndTarget(target);
         ASSERT_EQ(gen.getRawString(), target);
     }
+
+    TEST_F(Test1, check_begin_content_with_piece) {
+        gen.enableExtentManagement();
+        gen.changeBaseExtent(0, 2, 0, 2, 0, 2);
+        gen.changeBaseOrigin(0.0, 0.0, 0.0);
+        gen.changeBaseSpacing(1.0, 1.0, 0.5);
+
+        std::vector<float> values{
+            0, 1, 2, 3, 4, 5, 6, 7, 8,
+            9, 10, 11, 12, 13, 14, 15, 16,
+            17, 18, 19, 20, 21, 22, 23, 24,
+            25, 26
+        };
+
+        gen.beginVTK("ImageData");
+            gen.beginContentWithPiece();
+                gen.addPointScalars("potential", "Float32", "ascii", values);
+            gen.endContentWithPiece();
+        gen.endVTK();
+
+        const std::string target = 
+            header +
+            "<VTKFile type=\"ImageData\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0 0\" Spacing=\"1 1 0.5\">\n" +
+                indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
+                indent + indent + indent + "<PointData Scalars=\"potential\">\n" +
+                indent + indent + indent + indent + "<DataArray Name=\"potential\" type=\"Float32\" format=\"ascii\">\n" +
+                indent + indent + indent + indent + indent + "0 1 2 3 4 5 6 7 8 9 \n" +
+                indent + indent + indent + indent + indent + "10 11 12 13 14 15 16 17 18 19 \n" +
+                indent + indent + indent + indent + indent + "20 21 22 23 24 25 26\n" +
+                indent + indent + indent + indent + "</DataArray>\n" +
+                indent + indent + indent + "</PointData>\n" +
+                indent + indent + "</Piece>\n" +
+                indent + "</ImageData>\n"+
+            "</VTKFile>\n";
+        compareCurrentContentAndTarget(target);
+        ASSERT_EQ(gen.getRawString(), target);
+    }
 }

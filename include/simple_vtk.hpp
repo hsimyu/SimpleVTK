@@ -369,6 +369,24 @@ class SimpleVTK {
         }
         void endPiece() { endElement("Piece"); }
 
+        void beginContentWithPiece() {
+            if (isExtentManagementEnable()) {
+                beginContent();
+                beginPiece();
+            } else {
+                throw std::logic_error("[SIMPLE VTK ERROR] beginContentWithPiece() was called without initializing BaseExtent. Call changeBaseExtent(), changeBaseOrigin(), and changeBaseSpacing() before calling this function.");
+            }
+        }
+
+        void endContentWithPiece() {
+            if (isExtentManagementEnable()) {
+                endPiece();
+                endContent();
+            } else {
+                throw std::logic_error("[SIMPLE VTK ERROR] endContentWithPiece() was called without initializing BaseExtent. Call changeBaseExtent(), changeBaseOrigin(), and changeBaseSpacing() before calling this function.");
+            }
+        }
+
         void beginPointData() { beginElement("PointData"); }
         void endPointData() { endElement("PointData"); }
         void addPointData() {
