@@ -16,9 +16,9 @@ namespace TEST_SIMPLE_VTK {
 
         const std::string target = 
             header +
-            "<VTKFile type=\"vtkHierarchicalBoxDataSet\">\n" +
-                indent + "<vtkHierarchicalBoxDataSet Origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
-                indent + indent + "<Block level=\"0\" Spacing=\"1 1 1\">\n" +
+            "<VTKFile type=\"vtkHierarchicalBoxDataSet\" version=\"1.1\">\n" +
+                indent + "<vtkHierarchicalBoxDataSet origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
+                indent + indent + "<Block level=\"0\" spacing=\"1 1 1\">\n" +
                 indent + indent + "</Block>\n" +
                 indent + "</vtkHierarchicalBoxDataSet>\n"+
             "</VTKFile>\n";
@@ -45,9 +45,9 @@ namespace TEST_SIMPLE_VTK {
 
         const std::string target = 
             header +
-            "<VTKFile type=\"vtkHierarchicalBoxDataSet\">\n" +
-                indent + "<vtkHierarchicalBoxDataSet Origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
-                indent + indent + "<Block level=\"0\" Spacing=\"1 1 1\">\n" +
+            "<VTKFile type=\"vtkHierarchicalBoxDataSet\" version=\"1.1\">\n" +
+                indent + "<vtkHierarchicalBoxDataSet origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
+                indent + indent + "<Block level=\"0\" spacing=\"1 1 1\">\n" +
                 indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 2 0 2 0 2\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + "</Block>\n" +

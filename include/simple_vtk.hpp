@@ -26,6 +26,7 @@ class SimpleVTK {
         bool endEdit = false;
         unsigned int innerElementPerLine = 10;
         std::string current_vtk_type;
+        const std::string current_vtkHierarchicalBoxDataSet_version = "1.1";
 
         // indent management
         std::string indent;
@@ -365,6 +366,10 @@ class SimpleVTK {
         void beginVTK(const std::string& type) {
             beginElement("VTKFile");
             addType(type);
+
+            if (type == "vtkHierarchicalBoxDataSet") {
+                setVersion(current_vtkHierarchicalBoxDataSet_version);
+            }
         }
 
         void endVTK() {
@@ -633,13 +638,13 @@ class SimpleVTK {
         template<typename... Args>
         void setOrigin(Args&&... args) {
             std::string origin = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Origin=\"" + origin + "\"";
+            buffer += " origin=\"" + origin + "\"";
         }
 
         template<typename... Args>
         void setSpacing(Args&&... args) {
             std::string spacing = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Spacing=\"" + spacing + "\"";
+            buffer += " spacing=\"" + spacing + "\"";
         }
 
         void setAMRBox(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
