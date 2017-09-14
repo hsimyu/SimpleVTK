@@ -648,6 +648,13 @@ class SimpleVTK {
             buffer += " amr_box=\"" + amr_box + "\"";
         }
 
+        void setAMRBoxNode(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
+            // -1: node to cell index
+            addNewAMRBox(xmin, xmax - 1, ymin, ymax - 1, zmin, zmax - 1);
+            std::string amr_box = convertFromVariadicArgsToString(xmin, xmax - 1, ymin, ymax - 1, zmin, zmax - 1);
+            buffer += " amr_box=\"" + amr_box + "\"";
+        }
+
         void setAMRBoxFromParentIndex(const int index, const int xmin_on_parent, const int xmax_on_parent, const int ymin_on_parent, const int ymax_on_parent, const int zmin_on_parent, const int zmax_on_parent) {
             if (amr_info.current_level == 0) {
                 throw std::logic_error("[Simple VTK ERROR] setAMRBoxFromParentIndex() cannot be called on Level 0 Block.");
@@ -672,6 +679,10 @@ class SimpleVTK {
             } else {
                 throw std::logic_error("[Simple VTK ERROR] Parent Block Element did not initialized. Call setAMRBoxFromParentIndex() after Defining parent DataSets.");
             }
+        }
+
+        void setAMRBoxNodeFromParentIndex(const int index, const int xmin_on_parent, const int xmax_on_parent, const int ymin_on_parent, const int ymax_on_parent, const int zmin_on_parent, const int zmax_on_parent) {
+            setAMRBoxFromParentIndex(index, xmin_on_parent, xmax_on_parent - 1, ymin_on_parent, ymax_on_parent - 1, zmin_on_parent, zmax_on_parent - 1);
         }
 
         void addNewAMRBox(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {

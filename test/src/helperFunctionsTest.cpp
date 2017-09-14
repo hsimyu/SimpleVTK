@@ -268,7 +268,7 @@ namespace TEST_SIMPLE_VTK {
         ASSERT_EQ(gen.getRawString(), target);
     }
 
-    TEST_F(Test1, check_hierarchicalBoxDataSet_amr_box_support) {
+    TEST_F(Test1, check_hierarchicalBoxDataSet_amr_box_support_cell) {
         gen.enableExtentManagement();
         gen.changeBaseExtent(0, 2, 0, 2, 0, 2);
         gen.changeBaseOrigin(0.0, 0.0, 0.0);
@@ -297,6 +297,65 @@ namespace TEST_SIMPLE_VTK {
                 gen.beginBlock();
                     gen.beginDataSet(0);
                     gen.setAMRBoxFromParentIndex(1, 0, 0, 1, 1, 0, 1);
+                    gen.setFile("test.vti");
+                    gen.endDataSet();
+                gen.endBlock();
+            gen.endContent();
+        gen.endVTK();
+
+        const std::string target = 
+            header +
+            "<VTKFile type=\"vtkHierarchicalBoxDataSet\">\n" +
+                indent + "<vtkHierarchicalBoxDataSet Origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
+                indent + indent + "<Block level=\"0\" Spacing=\"1 1 0.5\">\n" +
+                indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 1 0 1 0 1\" file=\"test.vti\">\n" +
+                indent + indent + indent + "</DataSet>\n" +
+                indent + indent + "</Block>\n" +
+                indent + indent + "<Block level=\"1\" Spacing=\"0.5 0.5 0.25\">\n" +
+                indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 1 0 1 0 1\" file=\"test.vti\">\n" +
+                indent + indent + indent + "</DataSet>\n" +
+                indent + indent + indent + "<DataSet index=\"1\" amr_box=\"2 3 2 3 2 3\" file=\"test.vti\">\n" +
+                indent + indent + indent + "</DataSet>\n" +
+                indent + indent + "</Block>\n" +
+                indent + indent + "<Block level=\"2\" Spacing=\"0.25 0.25 0.125\">\n" +
+                indent + indent + indent + "<DataSet index=\"0\" amr_box=\"4 5 6 7 4 7\" file=\"test.vti\">\n" +
+                indent + indent + indent + "</DataSet>\n" +
+                indent + indent + "</Block>\n" +
+                indent + "</vtkHierarchicalBoxDataSet>\n"+
+            "</VTKFile>\n";
+        compareCurrentContentAndTarget(target);
+        ASSERT_EQ(gen.getRawString(), target);
+    }
+
+    TEST_F(Test1, check_hierarchicalBoxDataSet_amr_box_support_node) {
+        gen.enableExtentManagement();
+        gen.changeBaseExtent(0, 2, 0, 2, 0, 2);
+        gen.changeBaseOrigin(0.0, 0.0, 0.0);
+        gen.changeBaseSpacing(1.0, 1.0, 0.5);
+        gen.changeRefinementRatio(2.0);
+
+        gen.beginVTK("vtkHierarchicalBoxDataSet");
+            gen.beginContent();
+            gen.setGridDescription("XYZ");
+                gen.beginBlock();
+                    gen.beginDataSet(0);
+                    gen.setAMRBoxNode(0, 2, 0, 2, 0, 2);
+                    gen.setFile("test.vti");
+                    gen.endDataSet();
+                gen.endBlock();
+                gen.beginBlock();
+                    gen.beginDataSet(0);
+                    gen.setAMRBoxNodeFromParentIndex(0, 0, 1, 0, 1, 0, 1);
+                    gen.setFile("test.vti");
+                    gen.endDataSet();
+                    gen.beginDataSet(1);
+                    gen.setAMRBoxNodeFromParentIndex(0, 1, 2, 1, 2, 1, 2);
+                    gen.setFile("test.vti");
+                    gen.endDataSet();
+                gen.endBlock();
+                gen.beginBlock();
+                    gen.beginDataSet(0);
+                    gen.setAMRBoxNodeFromParentIndex(1, 0, 1, 1, 2, 0, 2);
                     gen.setFile("test.vti");
                     gen.endDataSet();
                 gen.endBlock();
