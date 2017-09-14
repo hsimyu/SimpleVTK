@@ -277,7 +277,6 @@ class SimpleVTK {
             double dx = 0.0;
             double dy = 0.0;
             double dz = 0.0;
-            double refinement_ratio = 2.0;
         };
 
         struct ExtentManagementStatus {
@@ -289,6 +288,27 @@ class SimpleVTK {
 
         ExtentInfo_t base_extent;
         ExtentManagementStatus manage_extent_status;
+
+        // for AMR index management types
+        struct AMRBox {
+            int xmin;
+            int xmax;
+            int ymin;
+            int ymax;
+            int zmin;
+            int zmax;
+        };
+
+        struct AMRBoxBlock {
+            std::vector<AMRBox> amr_boxes;
+        };
+
+        struct AMRInfo_t {
+            double refinement_ratio = 2.0;
+            std::map<size_t, AMRBoxBlock> blocks;
+		};
+
+        AMRInfo_t amr_info;
         int current_amr_level = 0;
 
     public:
@@ -423,7 +443,7 @@ class SimpleVTK {
             setLevel(current_amr_level);
 
             if (isExtentManagementEnable()) {
-                const auto per_level = 1.0 / std::pow(base_extent.refinement_ratio, current_amr_level);
+                const auto per_level = 1.0 / std::pow(amr_info.refinement_ratio, current_amr_level);
                 setSpacing(base_extent.dx * per_level, base_extent.dy * per_level, base_extent.dz * per_level);
             }
         }
@@ -437,7 +457,7 @@ class SimpleVTK {
             }
 
             if (isExtentManagementEnable()) {
-                const auto per_level = 1.0 / std::pow(base_extent.refinement_ratio, level);
+                const auto per_level = 1.0 / std::pow(amr_info.refinement_ratio, level);
                 setSpacing(base_extent.dx * per_level, base_extent.dy * per_level, base_extent.dz * per_level);
             }
         }
@@ -871,7 +891,7 @@ class SimpleVTK {
 
         template<typename T>
         void changeRefinementRatio(const T new_ratio) {
-            base_extent.refinement_ratio = new_ratio;
+            amr_info.refinement_ratio = new_ratio;
         }
 
         ExtentInfo_t getBaseExtent() const {
