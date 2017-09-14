@@ -313,6 +313,21 @@ class SimpleVTK {
         };
 
         AMRInfo_t amr_info;
+
+        void addNewAMRBox(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
+            if (amr_info.blocks.count(amr_info.current_level) == 0) {
+                AMRBoxBlock new_block;
+                amr_info.blocks[amr_info.current_level] = std::move(new_block);
+            }
+
+            auto& boxes = amr_info.blocks[amr_info.current_level].boxes;
+
+            if (boxes.count(amr_info.current_index) == 0) {
+                AMRBox new_box{xmin, xmax, ymin, ymax, zmin, zmax};
+                boxes[amr_info.current_index] = std::move(new_box);
+            }
+        }
+
         void initializeAMRBoxInfo() {
             amr_info.current_level = 0;
             amr_info.current_index = 0;
@@ -697,20 +712,6 @@ class SimpleVTK {
 
         void setAMRBoxNodeFromParentIndex(const int index, const int xmin_on_parent, const int xmax_on_parent, const int ymin_on_parent, const int ymax_on_parent, const int zmin_on_parent, const int zmax_on_parent) {
             setAMRBoxFromParentIndex(index, xmin_on_parent, xmax_on_parent - 1, ymin_on_parent, ymax_on_parent - 1, zmin_on_parent, zmax_on_parent - 1);
-        }
-
-        void addNewAMRBox(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
-            if (amr_info.blocks.count(amr_info.current_level) == 0) {
-                AMRBoxBlock new_block;
-                amr_info.blocks[amr_info.current_level] = std::move(new_block);
-            }
-
-            auto& boxes = amr_info.blocks[amr_info.current_level].boxes;
-
-            if (boxes.count(amr_info.current_index) == 0) {
-                AMRBox new_box{xmin, xmax, ymin, ymax, zmin, zmax};
-                boxes[amr_info.current_index] = std::move(new_box);
-            }
         }
 
         //! Inner array inserters

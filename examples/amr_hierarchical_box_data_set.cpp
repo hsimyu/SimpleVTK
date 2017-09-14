@@ -1,6 +1,7 @@
 #include <simple_vtk.hpp>
 
 int main() {
+
     // parent
     {
         std::vector<float> values{
@@ -43,6 +44,36 @@ int main() {
             gen.endContentWithPiece();
         gen.endVTK();
         gen.generate("child");
+    }
+
+    {
+        SimpleVTK gen;
+        gen.enableExtentManagement();
+        gen.changeBaseExtent(0, 2, 0, 2, 0, 2);
+        gen.changeBaseOrigin(0.0, 0.0, 0.0);
+        gen.changeBaseSpacing(1.0, 1.0, 0.5);
+
+        gen.beginVTK("vtkHierarchicalBoxDataSet");
+        gen.beginContent();
+        gen.setGridDescription("XYZ");
+
+            gen.beginBlock();
+                gen.beginDataSet(0);
+                gen.setAMRBox(0, 1, 0, 1, 0, 1); // indexing by cell number
+                gen.setFile("parent.vti");
+                gen.endDataSet();
+            gen.endBlock();
+
+            gen.beginBlock(); // new block level is automatically set to 1, spacing is set to base_dx / 2.
+                gen.beginDataSet(0);
+                gen.setAMRBox(0, 1, 2, 3, 0, 1);
+                gen.setFile("child.vti");
+                gen.endDataSet();
+            gen.endBlock();
+
+        gen.endContent();
+        gen.endVTK();
+        gen.generate("vthb_sample");
     }
 
     // grandchild
