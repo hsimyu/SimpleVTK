@@ -649,7 +649,11 @@ class SimpleVTK {
         template<typename... Args>
         void setSpacing(Args&&... args) {
             std::string spacing = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Spacing=\"" + spacing + "\"";
+            if (current_vtk_type != "vtkHierarchicalBoxDataSet") {
+                buffer += " Spacing=\"" + spacing + "\"";
+            } else {
+                buffer += " spacing=\"" + spacing + "\""; // ;D
+            }
         }
 
         void setAMRBox(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
