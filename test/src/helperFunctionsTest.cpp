@@ -280,19 +280,23 @@ namespace TEST_SIMPLE_VTK {
             gen.setGridDescription("XYZ");
                 gen.beginBlock();
                     gen.beginDataSet(0);
-                    gen.setAMRBox(1, 2, 0, 1, 2, 3);
+                    gen.setAMRBox(0, 1, 0, 1, 0, 1);
                     gen.setFile("test.vti");
                     gen.endDataSet();
                 gen.endBlock();
                 gen.beginBlock();
                     gen.beginDataSet(0);
-                    gen.setAMRBoxFromParentIndex(0, 0, 1, 0, 1, 0, 1);
+                    gen.setAMRBoxFromParentIndex(0, 0, 0, 0, 0, 0, 0);
+                    gen.setFile("test.vti");
+                    gen.endDataSet();
+                    gen.beginDataSet(1);
+                    gen.setAMRBoxFromParentIndex(0, 1, 1, 1, 1, 1, 1);
                     gen.setFile("test.vti");
                     gen.endDataSet();
                 gen.endBlock();
                 gen.beginBlock();
                     gen.beginDataSet(0);
-                    gen.setAMRBoxFromParentIndex(0, 0, 1, 0, 1, 0, 1);
+                    gen.setAMRBoxFromParentIndex(1, 0, 0, 1, 1, 0, 1);
                     gen.setFile("test.vti");
                     gen.endDataSet();
                 gen.endBlock();
@@ -304,15 +308,17 @@ namespace TEST_SIMPLE_VTK {
             "<VTKFile type=\"vtkHierarchicalBoxDataSet\">\n" +
                 indent + "<vtkHierarchicalBoxDataSet Origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
                 indent + indent + "<Block level=\"0\" Spacing=\"1 1 0.5\">\n" +
-                indent + indent + indent + "<DataSet index=\"0\" amr_box=\"1 2 0 1 2 3\" file=\"test.vti\">\n" +
+                indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 1 0 1 0 1\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + "</Block>\n" +
                 indent + indent + "<Block level=\"1\" Spacing=\"0.5 0.5 0.25\">\n" +
-                indent + indent + indent + "<DataSet index=\"0\" amr_box=\"2 3 0 1 4 5\" file=\"test.vti\">\n" +
+                indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 1 0 1 0 1\" file=\"test.vti\">\n" +
+                indent + indent + indent + "</DataSet>\n" +
+                indent + indent + indent + "<DataSet index=\"1\" amr_box=\"2 3 2 3 2 3\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + "</Block>\n" +
                 indent + indent + "<Block level=\"2\" Spacing=\"0.25 0.25 0.125\">\n" +
-                indent + indent + indent + "<DataSet index=\"0\" amr_box=\"4 5 0 1 8 9\" file=\"test.vti\">\n" +
+                indent + indent + indent + "<DataSet index=\"0\" amr_box=\"4 5 6 7 4 7\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + "</Block>\n" +
                 indent + "</vtkHierarchicalBoxDataSet>\n"+

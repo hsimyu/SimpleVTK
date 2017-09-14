@@ -659,14 +659,12 @@ class SimpleVTK {
                 if (blocks.boxes.count(index) > 0) {
                     const auto& parent_amr_box = blocks.boxes[index];
                     const int xmin = 2 * parent_amr_box.xmin + 2 * xmin_on_parent;
-                    const int xmax = 2 * parent_amr_box.xmin + 2 * xmax_on_parent - 1;
+                    const int xmax = 2 * parent_amr_box.xmin + 2 * xmax_on_parent + 1;
                     const int ymin = 2 * parent_amr_box.ymin + 2 * ymin_on_parent;
-                    const int ymax = 2 * parent_amr_box.ymin + 2 * ymax_on_parent - 1;
+                    const int ymax = 2 * parent_amr_box.ymin + 2 * ymax_on_parent + 1;
                     const int zmin = 2 * parent_amr_box.zmin + 2 * zmin_on_parent;
-                    const int zmax = 2 * parent_amr_box.zmin + 2 * zmax_on_parent - 1;
-                    addNewAMRBox(xmin, xmax, ymin, ymax, zmin, zmax);
-                    std::string amr_box = convertFromVariadicArgsToString(xmin, xmax, ymin, ymax, zmin, zmax);
-                    buffer += " amr_box=\"" + amr_box + "\"";
+                    const int zmax = 2 * parent_amr_box.zmin + 2 * zmax_on_parent + 1;
+                    setAMRBox(xmin, xmax, ymin, ymax, zmin, zmax);
                 } else {
                     const std::string error_message = "[Simple VTK ERROR] Specified Parent Index " + std::to_string(index) + " does not exist on setAMRBoxFromParentIndex().";
                     throw std::logic_error(error_message);
