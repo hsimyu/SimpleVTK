@@ -34,8 +34,7 @@ namespace TEST_SIMPLE_VTK {
 
                 gen.beginBlock(0);
                 gen.setSpacing(1.0, 1.0, 1.0);
-                    gen.beginDataSet();
-                    gen.setIndex(0);
+                    gen.beginDataSet(0);
                     gen.setAMRBox(0, 2, 0, 2, 0, 2);
                     gen.setFile("test.vti");
                     gen.endDataSet();

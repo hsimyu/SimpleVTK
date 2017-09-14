@@ -2,6 +2,7 @@
 
 int main() {
 
+    // automatically insert extent information
     {
         SimpleVTK gen;
         gen.enableExtentManagement();
@@ -27,6 +28,7 @@ int main() {
         gen.generate("auto_extent_management1");
     }
 
+    // or, insert Content and Piece at the same time
     {
         SimpleVTK gen;
         gen.enableExtentManagement();

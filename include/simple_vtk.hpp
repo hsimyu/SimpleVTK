@@ -433,7 +433,11 @@ class SimpleVTK {
 
         void endBlock() { endElement("Block"); }
 
-        void beginDataSet() { beginElement("DataSet"); }
+        template<typename T>
+        void beginDataSet(const T index) {
+            beginElement("DataSet");
+            setIndex(index);
+        }
         void endDataSet() { endElement("DataSet"); }
 
         void beginAppendData() { beginElement("AppendData"); }
