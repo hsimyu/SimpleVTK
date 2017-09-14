@@ -254,8 +254,8 @@ namespace TEST_SIMPLE_VTK {
 
         const std::string target = 
             header +
-            "<VTKFile type=\"vtkHierarchicalBoxDataSet\">\n" +
-                indent + "<vtkHierarchicalBoxDataSet Origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
+            "<VTKFile type=\"vtkHierarchicalBoxDataSet\" version=\"1.1\">\n" +
+                indent + "<vtkHierarchicalBoxDataSet origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
                 indent + indent + "<Block level=\"0\" Spacing=\"1 1 0.5\">\n" +
                 indent + indent + "</Block>\n" +
                 indent + indent + "<Block level=\"1\" Spacing=\"0.5 0.5 0.25\">\n" +
@@ -305,8 +305,8 @@ namespace TEST_SIMPLE_VTK {
 
         const std::string target = 
             header +
-            "<VTKFile type=\"vtkHierarchicalBoxDataSet\">\n" +
-                indent + "<vtkHierarchicalBoxDataSet Origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
+            "<VTKFile type=\"vtkHierarchicalBoxDataSet\" version=\"1.1\">\n" +
+                indent + "<vtkHierarchicalBoxDataSet origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
                 indent + indent + "<Block level=\"0\" Spacing=\"1 1 0.5\">\n" +
                 indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 1 0 1 0 1\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
@@ -364,8 +364,8 @@ namespace TEST_SIMPLE_VTK {
 
         const std::string target = 
             header +
-            "<VTKFile type=\"vtkHierarchicalBoxDataSet\">\n" +
-                indent + "<vtkHierarchicalBoxDataSet Origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
+            "<VTKFile type=\"vtkHierarchicalBoxDataSet\" version=\"1.1\">\n" +
+                indent + "<vtkHierarchicalBoxDataSet origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
                 indent + indent + "<Block level=\"0\" Spacing=\"1 1 0.5\">\n" +
                 indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 1 0 1 0 1\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +

@@ -638,7 +638,12 @@ class SimpleVTK {
         template<typename... Args>
         void setOrigin(Args&&... args) {
             std::string origin = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Origin=\"" + origin + "\"";
+
+            if (current_vtk_type != "vtkHierarchicalBoxDataSet") {
+                buffer += " Origin=\"" + origin + "\"";
+            } else {
+                buffer += " origin=\"" + origin + "\""; // ;D
+            }
         }
 
         template<typename... Args>
