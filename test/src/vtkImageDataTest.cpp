@@ -35,7 +35,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0.5 0\" spacing=\"1 1.1 1\">\n" + indent + "</ImageData>\n"+
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0.5 0\" Spacing=\"1 1.1 1\">\n" + indent + "</ImageData>\n"+
             "</VTKFile>\n";
         compareCurrentContentAndTarget(target);
         ASSERT_EQ(gen.getRawString(), target);
@@ -56,7 +56,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0.5 0\" spacing=\"1 1.1 1\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0.5 0\" Spacing=\"1 1.1 1\">\n" +
                 indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + "</Piece>\n" +
                 indent + "</ImageData>\n"+
@@ -90,7 +90,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0.5 0\" spacing=\"1 1.1 1\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0.5 0\" Spacing=\"1 1.1 1\">\n" +
                 indent + indent + "<Piece NumberOfPoints=\"3\" NumberOfCells=\"3\" Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<PointData Scalars=\"potential\" Vectors=\"efield\">\n" +
                 indent + indent + indent + "</PointData>\n" +
@@ -131,7 +131,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0.5 0\" spacing=\"1 1.1 1\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0.5 0\" Spacing=\"1 1.1 1\">\n" +
                 indent + indent + "<Piece NumberOfPoints=\"3\" NumberOfCells=\"3\" Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<Points>\n" +
                 indent + indent + indent + "</Points>\n" +
@@ -182,7 +182,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0.5 0\" spacing=\"1 1.1 1\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0.5 0\" Spacing=\"1 1.1 1\">\n" +
                 indent + indent + "<Piece NumberOfPoints=\"3\" NumberOfCells=\"3\" Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<Points>\n" +
                 indent + indent + indent + "</Points>\n" +
@@ -233,7 +233,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0 0\" spacing=\"1 1 1\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0 0\" Spacing=\"1 1 1\">\n" +
                 indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<PointData Scalars=\"potential\">\n" +
                 indent + indent + indent + indent + "<DataArray Name=\"potential\" type=\"Float32\" format=\"ascii\">\n" +
@@ -280,7 +280,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 0\" origin=\"0 0 0\" spacing=\"1 1 0\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 0\" Origin=\"0 0 0\" Spacing=\"1 1 0\">\n" +
                 indent + indent + "<Piece Extent=\"0 2 0 2 0 0\">\n" +
                 indent + indent + indent + "<PointData Scalars=\"potential\">\n" +
                 indent + indent + indent + indent + "<DataArray Name=\"potential\" type=\"Int32\" format=\"ascii\">\n" +
@@ -334,7 +334,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0 0\" spacing=\"1 1 1\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0 0\" Spacing=\"1 1 1\">\n" +
                 indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<PointData Scalars=\"potential\">\n" +
                 indent + indent + indent + indent + "<DataArray Name=\"potential\" type=\"Int32\" format=\"ascii\">\n" +

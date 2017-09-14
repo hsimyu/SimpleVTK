@@ -27,7 +27,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0 0\" spacing=\"1 1 1\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0 0\" Spacing=\"1 1 1\">\n" +
                 indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<PointData Scalars=\"potential\">\n" +
                 indent + indent + indent + indent + "<DataArray Name=\"potential\" type=\"Float32\" format=\"ascii\">\n" +
@@ -66,7 +66,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0 0\" spacing=\"1 1 1\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0 0\" Spacing=\"1 1 1\">\n" +
                 indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<PointData Scalars=\"potential\">\n" +
                 indent + indent + indent + indent + "<DataArray Name=\"potential\" type=\"Float32\" format=\"ascii\">\n" +
@@ -105,7 +105,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0 0\" spacing=\"1 1 1\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0 0\" Spacing=\"1 1 1\">\n" +
                 indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<CellData Scalars=\"potential\">\n" +
                 indent + indent + indent + indent + "<DataArray Name=\"potential\" type=\"Float32\" format=\"ascii\">\n" +
@@ -179,7 +179,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0 0\" spacing=\"1 1 0.5\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0 0\" Spacing=\"1 1 0.5\">\n" +
                 indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<PointData Scalars=\"potential\">\n" +
                 indent + indent + indent + indent + "<DataArray Name=\"potential\" type=\"Float32\" format=\"ascii\">\n" +
@@ -217,7 +217,7 @@ namespace TEST_SIMPLE_VTK {
         const std::string target = 
             header +
             "<VTKFile type=\"ImageData\">\n" +
-                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" origin=\"0 0 0\" spacing=\"1 1 0.5\">\n" +
+                indent + "<ImageData WholeExtent=\"0 2 0 2 0 2\" Origin=\"0 0 0\" Spacing=\"1 1 0.5\">\n" +
                 indent + indent + "<Piece Extent=\"0 2 0 2 0 2\">\n" +
                 indent + indent + indent + "<PointData Scalars=\"potential\">\n" +
                 indent + indent + indent + indent + "<DataArray Name=\"potential\" type=\"Float32\" format=\"ascii\">\n" +
@@ -254,13 +254,13 @@ namespace TEST_SIMPLE_VTK {
 
         const std::string target = 
             header +
-            "<VTKFile type=\"vtkHierarchicalBoxDataSet\" version=\"1.1\">\n" +
-                indent + "<vtkHierarchicalBoxDataSet origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
-                indent + indent + "<Block level=\"0\" spacing=\"1 1 0.5\">\n" +
+            "<VTKFile type=\"vtkHierarchicalBoxDataSet\">\n" +
+                indent + "<vtkHierarchicalBoxDataSet Origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
+                indent + indent + "<Block level=\"0\" Spacing=\"1 1 0.5\">\n" +
                 indent + indent + "</Block>\n" +
-                indent + indent + "<Block level=\"1\" spacing=\"0.5 0.5 0.25\">\n" +
+                indent + indent + "<Block level=\"1\" Spacing=\"0.5 0.5 0.25\">\n" +
                 indent + indent + "</Block>\n" +
-                indent + indent + "<Block level=\"2\" spacing=\"0.25 0.25 0.125\">\n" +
+                indent + indent + "<Block level=\"2\" Spacing=\"0.25 0.25 0.125\">\n" +
                 indent + indent + "</Block>\n" +
                 indent + "</vtkHierarchicalBoxDataSet>\n"+
             "</VTKFile>\n";
@@ -305,19 +305,19 @@ namespace TEST_SIMPLE_VTK {
 
         const std::string target = 
             header +
-            "<VTKFile type=\"vtkHierarchicalBoxDataSet\" version=\"1.1\">\n" +
-                indent + "<vtkHierarchicalBoxDataSet origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
-                indent + indent + "<Block level=\"0\" spacing=\"1 1 0.5\">\n" +
+            "<VTKFile type=\"vtkHierarchicalBoxDataSet\">\n" +
+                indent + "<vtkHierarchicalBoxDataSet Origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
+                indent + indent + "<Block level=\"0\" Spacing=\"1 1 0.5\">\n" +
                 indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 1 0 1 0 1\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + "</Block>\n" +
-                indent + indent + "<Block level=\"1\" spacing=\"0.5 0.5 0.25\">\n" +
+                indent + indent + "<Block level=\"1\" Spacing=\"0.5 0.5 0.25\">\n" +
                 indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 1 0 1 0 1\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + indent + "<DataSet index=\"1\" amr_box=\"2 3 2 3 2 3\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + "</Block>\n" +
-                indent + indent + "<Block level=\"2\" spacing=\"0.25 0.25 0.125\">\n" +
+                indent + indent + "<Block level=\"2\" Spacing=\"0.25 0.25 0.125\">\n" +
                 indent + indent + indent + "<DataSet index=\"0\" amr_box=\"4 5 6 7 4 7\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + "</Block>\n" +
@@ -364,19 +364,19 @@ namespace TEST_SIMPLE_VTK {
 
         const std::string target = 
             header +
-            "<VTKFile type=\"vtkHierarchicalBoxDataSet\" version=\"1.1\">\n" +
-                indent + "<vtkHierarchicalBoxDataSet origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
-                indent + indent + "<Block level=\"0\" spacing=\"1 1 0.5\">\n" +
+            "<VTKFile type=\"vtkHierarchicalBoxDataSet\">\n" +
+                indent + "<vtkHierarchicalBoxDataSet Origin=\"0 0 0\" grid_description=\"XYZ\">\n" +
+                indent + indent + "<Block level=\"0\" Spacing=\"1 1 0.5\">\n" +
                 indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 1 0 1 0 1\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + "</Block>\n" +
-                indent + indent + "<Block level=\"1\" spacing=\"0.5 0.5 0.25\">\n" +
+                indent + indent + "<Block level=\"1\" Spacing=\"0.5 0.5 0.25\">\n" +
                 indent + indent + indent + "<DataSet index=\"0\" amr_box=\"0 1 0 1 0 1\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + indent + "<DataSet index=\"1\" amr_box=\"2 3 2 3 2 3\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + "</Block>\n" +
-                indent + indent + "<Block level=\"2\" spacing=\"0.25 0.25 0.125\">\n" +
+                indent + indent + "<Block level=\"2\" Spacing=\"0.25 0.25 0.125\">\n" +
                 indent + indent + indent + "<DataSet index=\"0\" amr_box=\"4 5 6 7 4 7\" file=\"test.vti\">\n" +
                 indent + indent + indent + "</DataSet>\n" +
                 indent + indent + "</Block>\n" +

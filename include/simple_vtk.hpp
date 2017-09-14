@@ -638,13 +638,13 @@ class SimpleVTK {
         template<typename... Args>
         void setOrigin(Args&&... args) {
             std::string origin = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " origin=\"" + origin + "\"";
+            buffer += " Origin=\"" + origin + "\"";
         }
 
         template<typename... Args>
         void setSpacing(Args&&... args) {
             std::string spacing = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " spacing=\"" + spacing + "\"";
+            buffer += " Spacing=\"" + spacing + "\"";
         }
 
         void setAMRBox(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
