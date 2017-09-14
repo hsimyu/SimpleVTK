@@ -64,6 +64,7 @@ class SimpleVTK {
             content = header;
             current_tag = "VTKFile";
             current_vtk_type = "";
+            initializeAMRBoxInfo();
         }
 
         // Structure Management
@@ -300,16 +301,22 @@ class SimpleVTK {
         };
 
         struct AMRBoxBlock {
-            std::vector<AMRBox> amr_boxes;
+            std::map<int, AMRBox> boxes;
         };
 
         struct AMRInfo_t {
             double refinement_ratio = 2.0;
-            std::map<size_t, AMRBoxBlock> blocks;
-		};
+            int current_level = 0;
+            int current_index = 0;
+            std::map<int, AMRBoxBlock> blocks;
+        };
 
         AMRInfo_t amr_info;
-        int current_amr_level = 0;
+        void initializeAMRBoxInfo() {
+            amr_info.current_level = 0;
+            amr_info.current_index = 0;
+            amr_info.blocks.clear();
+        }
 
     public:
         SimpleVTK() {
@@ -440,10 +447,10 @@ class SimpleVTK {
 
         void beginBlock() {
             beginElement("Block");
-            setLevel(current_amr_level);
+            setLevel(amr_info.current_level);
 
             if (isExtentManagementEnable()) {
-                const auto per_level = 1.0 / std::pow(amr_info.refinement_ratio, current_amr_level);
+                const auto per_level = 1.0 / std::pow(amr_info.refinement_ratio, amr_info.current_level);
                 setSpacing(base_extent.dx * per_level, base_extent.dy * per_level, base_extent.dz * per_level);
             }
         }
@@ -452,8 +459,8 @@ class SimpleVTK {
             beginElement("Block");
             setLevel(level);
 
-            if (current_amr_level != level) {
-                current_amr_level = level;
+            if (amr_info.current_level != level) {
+                amr_info.current_level = level;
             }
 
             if (isExtentManagementEnable()) {
@@ -468,7 +475,7 @@ class SimpleVTK {
 
         void endBlock() {
             endElement("Block");
-            ++current_amr_level;
+            amr_info.current_level++;
         }
 
         template<typename T>
@@ -577,10 +584,12 @@ class SimpleVTK {
         }
 
         void setIndex(const std::string& index) {
+            amr_info.current_index = std::stoi(index);
             buffer += " index=\"" + index + "\"";
         }
 
         void setIndex(const int index) {
+            amr_info.current_index = index;
             buffer += " index=\"" + std::to_string(index) + "\"";
         }
 
@@ -633,10 +642,52 @@ class SimpleVTK {
             buffer += " Spacing=\"" + spacing + "\"";
         }
 
-        template<typename... Args>
-        void setAMRBox(Args&&... args) {
-            std::string amr_box = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+        void setAMRBox(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
+            addNewAMRBox(xmin, xmax, ymin, ymax, zmin, zmax);
+            std::string amr_box = convertFromVariadicArgsToString(xmin, xmax, ymin, ymax, zmin, zmax);
             buffer += " amr_box=\"" + amr_box + "\"";
+        }
+
+        void setAMRBoxFromParentIndex(const int index, const int xmin_on_parent, const int xmax_on_parent, const int ymin_on_parent, const int ymax_on_parent, const int zmin_on_parent, const int zmax_on_parent) {
+            if (amr_info.current_level == 0) {
+                throw std::logic_error("[Simple VTK ERROR] setAMRBoxFromParentIndex() cannot be called on Level 0 Block.");
+            }
+
+            if (amr_info.blocks.count(amr_info.current_level - 1) > 0) {
+                auto& blocks = amr_info.blocks[amr_info.current_level - 1];
+
+                if (blocks.boxes.count(index) > 0) {
+                    const auto& parent_amr_box = blocks.boxes[index];
+                    const int xmin = 2 * parent_amr_box.xmin + 2 * xmin_on_parent;
+                    const int xmax = 2 * parent_amr_box.xmin + 2 * xmax_on_parent - 1;
+                    const int ymin = 2 * parent_amr_box.ymin + 2 * ymin_on_parent;
+                    const int ymax = 2 * parent_amr_box.ymin + 2 * ymax_on_parent - 1;
+                    const int zmin = 2 * parent_amr_box.zmin + 2 * zmin_on_parent;
+                    const int zmax = 2 * parent_amr_box.zmin + 2 * zmax_on_parent - 1;
+                    addNewAMRBox(xmin, xmax, ymin, ymax, zmin, zmax);
+                    std::string amr_box = convertFromVariadicArgsToString(xmin, xmax, ymin, ymax, zmin, zmax);
+                    buffer += " amr_box=\"" + amr_box + "\"";
+                } else {
+                    const std::string error_message = "[Simple VTK ERROR] Specified Parent Index " + std::to_string(index) + " does not exist on setAMRBoxFromParentIndex().";
+                    throw std::logic_error(error_message);
+                }
+            } else {
+                throw std::logic_error("[Simple VTK ERROR] Parent Block Element did not initialized. Call setAMRBoxFromParentIndex() after Defining parent DataSets.");
+            }
+        }
+
+        void addNewAMRBox(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
+            if (amr_info.blocks.count(amr_info.current_level) == 0) {
+                AMRBoxBlock new_block;
+                amr_info.blocks[amr_info.current_level] = std::move(new_block);
+            }
+
+            auto& boxes = amr_info.blocks[amr_info.current_level].boxes;
+
+            if (boxes.count(amr_info.current_index) == 0) {
+                AMRBox new_box{xmin, xmax, ymin, ymax, zmin, zmax};
+                boxes[amr_info.current_index] = std::move(new_box);
+            }
         }
 
         //! Inner array inserters
