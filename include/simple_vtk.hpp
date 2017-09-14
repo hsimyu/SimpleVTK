@@ -289,6 +289,7 @@ class SimpleVTK {
 
         ExtentInfo_t base_extent;
         ExtentManagementStatus manage_extent_status;
+        int current_amr_level = 0;
 
     public:
         SimpleVTK() {
@@ -417,9 +418,23 @@ class SimpleVTK {
             endCells();
         }
 
+        void beginBlock() {
+            beginElement("Block");
+            setLevel(current_amr_level);
+
+            if (isExtentManagementEnable()) {
+                const auto per_level = 1.0 / std::pow(base_extent.refinement_ratio, current_amr_level);
+                setSpacing(base_extent.dx * per_level, base_extent.dy * per_level, base_extent.dz * per_level);
+            }
+        }
+
         void beginBlock(const int level) {
             beginElement("Block");
             setLevel(level);
+
+            if (current_amr_level != level) {
+                current_amr_level = level;
+            }
 
             if (isExtentManagementEnable()) {
                 const auto per_level = 1.0 / std::pow(base_extent.refinement_ratio, level);
@@ -431,7 +446,10 @@ class SimpleVTK {
             beginBlock(std::stoi(level));
         }
 
-        void endBlock() { endElement("Block"); }
+        void endBlock() {
+            endElement("Block");
+            ++current_amr_level;
+        }
 
         template<typename T>
         void beginDataSet(const T index) {
