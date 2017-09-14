@@ -276,6 +276,7 @@ class SimpleVTK {
             double dx = 0.0;
             double dy = 0.0;
             double dz = 0.0;
+            double refinement_ratio = 2.0;
         };
 
         struct ExtentManagementStatus {
@@ -415,10 +416,18 @@ class SimpleVTK {
             endCells();
         }
 
-        template<typename T>
-        void beginBlock(const T level) {
+        void beginBlock(const int level) {
             beginElement("Block");
             setLevel(level);
+
+            if (isExtentManagementEnable()) {
+                const auto per_level = 1.0 / pow(base_extent.refinement_ratio, level);
+                setSpacing(base_extent.dx * per_level, base_extent.dy * per_level, base_extent.dz * per_level);
+            }
+        }
+
+        void beginBlock(const std::string level) {
+            beginBlock(std::stoi(level));
         }
 
         void endBlock() { endElement("Block"); }
@@ -835,6 +844,11 @@ class SimpleVTK {
             base_extent.dy = dy;
             base_extent.dz = dz;
             manage_extent_status.spacing_initialized = true;
+        }
+
+        template<typename T>
+        void changeRefinementRatio(const T new_ratio) {
+            base_extent.refinement_ratio = new_ratio;
         }
 
         ExtentInfo_t getBaseExtent() const {
