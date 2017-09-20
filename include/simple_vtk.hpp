@@ -1,7 +1,32 @@
+/*/
+MIT License
+
+Copyright (c) 2017 hsimyu
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+//*/
+
 #ifndef SIMPLE_VTK_HPP_INCLUDED
 #define SIMPLE_VTK_HPP_INCLUDED
 
 #include <iostream>
+#include <cmath>
 #include <array>
 #include <vector>
 #include <map>
@@ -25,7 +50,7 @@ class SimpleVTK {
         bool endEdit = false;
         unsigned int innerElementPerLine = 10;
         std::string current_vtk_type;
-
+        const std::string current_vtkHierarchicalBoxDataSet_version = "1.1";
 
         // indent management
         std::string indent;
@@ -64,6 +89,7 @@ class SimpleVTK {
             content = header;
             current_tag = "VTKFile";
             current_vtk_type = "";
+            initializeAMRBoxInfo();
         }
 
         // Structure Management
@@ -148,6 +174,9 @@ class SimpleVTK {
             "Int8", "Int16", "Int32", "Int64",
             "UInt8", "UInt16", "UInt32", "UInt64"
         }};
+
+        static constexpr int encoding_type_length = 2;
+        std::array<std::string, encoding_type_length> EncodingType {{"base64", "raw"}};
 
         template<int N>
         bool checkIsValidType(const std::array<std::string, N>& valid_types, const std::string& specified_type) {
@@ -260,6 +289,75 @@ class SimpleVTK {
             }
         }
 
+        // Base Extent Management
+        struct ExtentInfo_t {
+            int xmin = 0;
+            int xmax = 0;
+            int ymin = 0;
+            int ymax = 0;
+            int zmin = 0;
+            int zmax = 0;
+            double x0 = 0.0;
+            double y0 = 0.0;
+            double z0 = 0.0;
+            double dx = 0.0;
+            double dy = 0.0;
+            double dz = 0.0;
+        };
+
+        struct ExtentManagementStatus {
+            bool extent_initialized = false;
+            bool origin_initialized = false;
+            bool spacing_initialized = false;
+            bool enable = false;
+        };
+
+        ExtentInfo_t base_extent;
+        ExtentManagementStatus manage_extent_status;
+
+        // for AMR index management types
+        struct AMRBox {
+            int xmin;
+            int xmax;
+            int ymin;
+            int ymax;
+            int zmin;
+            int zmax;
+        };
+
+        struct AMRBoxBlock {
+            std::map<int, AMRBox> boxes;
+        };
+
+        struct AMRInfo_t {
+            double refinement_ratio = 2.0;
+            int current_level = 0;
+            int current_index = 0;
+            std::map<int, AMRBoxBlock> blocks;
+        };
+
+        AMRInfo_t amr_info;
+
+        void addNewAMRBox(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
+            if (amr_info.blocks.count(amr_info.current_level) == 0) {
+                AMRBoxBlock new_block;
+                amr_info.blocks[amr_info.current_level] = std::move(new_block);
+            }
+
+            auto& boxes = amr_info.blocks[amr_info.current_level].boxes;
+
+            if (boxes.count(amr_info.current_index) == 0) {
+                AMRBox new_box{xmin, xmax, ymin, ymax, zmin, zmax};
+                boxes[amr_info.current_index] = std::move(new_box);
+            }
+        }
+
+        void initializeAMRBoxInfo() {
+            amr_info.current_level = 0;
+            amr_info.current_index = 0;
+            amr_info.blocks.clear();
+        }
+
     public:
         SimpleVTK() {
             initialize();
@@ -311,6 +409,10 @@ class SimpleVTK {
         void beginVTK(const std::string& type) {
             beginElement("VTKFile");
             addType(type);
+
+            if (type == "vtkHierarchicalBoxDataSet") {
+                setVersion(current_vtkHierarchicalBoxDataSet_version);
+            }
         }
 
         void endVTK() {
@@ -318,11 +420,50 @@ class SimpleVTK {
             endEdit = true;
         }
 
-        void beginContent() { beginElement(current_vtk_type); }
+        void beginContent() {
+            beginElement(current_vtk_type);
+
+            if (isExtentManagementEnable()) {
+                if (current_vtk_type != "vtkHierarchicalBoxDataSet") {
+                    setWholeExtent(base_extent.xmin, base_extent.xmax, base_extent.ymin, base_extent.ymax, base_extent.zmin, base_extent.zmax);
+                }
+
+                if (current_vtk_type == "ImageData" || current_vtk_type == "PImageData") {
+                    setOrigin(base_extent.x0, base_extent.y0, base_extent.z0);
+                    setSpacing(base_extent.dx, base_extent.dy, base_extent.dz);
+                } else if (current_vtk_type == "vtkHierarchicalBoxDataSet") {
+                    setOrigin(base_extent.x0, base_extent.y0, base_extent.z0);
+                }
+            }
+        }
         void endContent() { endElement(current_vtk_type); }
 
-        void beginPiece() { beginElement("Piece"); }
+        void beginPiece() {
+            beginElement("Piece");
+
+            if (isExtentManagementEnable()) {
+                setExtent(base_extent.xmin, base_extent.xmax, base_extent.ymin, base_extent.ymax, base_extent.zmin, base_extent.zmax);
+            }
+        }
         void endPiece() { endElement("Piece"); }
+
+        void beginContentWithPiece() {
+            if (isExtentManagementEnable()) {
+                beginContent();
+                beginPiece();
+            } else {
+                throw std::logic_error("[SIMPLE VTK ERROR] beginContentWithPiece() was called without initializing BaseExtent. Call changeBaseExtent(), changeBaseOrigin(), and changeBaseSpacing() before calling this function.");
+            }
+        }
+
+        void endContentWithPiece() {
+            if (isExtentManagementEnable()) {
+                endPiece();
+                endContent();
+            } else {
+                throw std::logic_error("[SIMPLE VTK ERROR] endContentWithPiece() was called without initializing BaseExtent. Call changeBaseExtent(), changeBaseOrigin(), and changeBaseSpacing() before calling this function.");
+            }
+        }
 
         void beginPointData() { beginElement("PointData"); }
         void endPointData() { endElement("PointData"); }
@@ -352,6 +493,49 @@ class SimpleVTK {
             endCells();
         }
 
+        void beginBlock() {
+            beginElement("Block");
+            setLevel(amr_info.current_level);
+
+            if (isExtentManagementEnable()) {
+                const auto per_level = 1.0 / std::pow(amr_info.refinement_ratio, amr_info.current_level);
+                setSpacing(base_extent.dx * per_level, base_extent.dy * per_level, base_extent.dz * per_level);
+            }
+        }
+
+        void beginBlock(const int level) {
+            beginElement("Block");
+            setLevel(level);
+
+            if (amr_info.current_level != level) {
+                amr_info.current_level = level;
+            }
+
+            if (isExtentManagementEnable()) {
+                const auto per_level = 1.0 / std::pow(amr_info.refinement_ratio, level);
+                setSpacing(base_extent.dx * per_level, base_extent.dy * per_level, base_extent.dz * per_level);
+            }
+        }
+
+        void beginBlock(const std::string level) {
+            beginBlock(std::stoi(level));
+        }
+
+        void endBlock() {
+            endElement("Block");
+            amr_info.current_level++;
+        }
+
+        template<typename T>
+        void beginDataSet(const T index) {
+            beginElement("DataSet");
+            setIndex(index);
+        }
+        void endDataSet() { endElement("DataSet"); }
+
+        void beginAppendData() { beginElement("AppendData"); }
+        void endAppendData() { endElement("AppendData"); }
+
         void beginDataArray(const std::string name, const std::string number_type, const std::string format) {
             beginElement("DataArray");
             setName(name);
@@ -359,6 +543,204 @@ class SimpleVTK {
             setFormat(format);
         }
         void endDataArray() { endElement("DataArray"); }
+
+        // --- Attirbute Setting Functions ---
+        void setName(const std::string& name) {
+            if (name != "") {
+                buffer += " Name=\"" + name + "\"";
+            }
+        }
+
+        void setVersion(const std::string& _version) {
+            buffer += " version=\"" + _version + "\"";
+        }
+
+        void setByteOrder(const std::string& byte_order) {
+            if (checkIsValidType<byte_order_type_length>(ByteOrderType, byte_order)) {
+                buffer += " byte_order=\"" + byte_order + "\"";
+            } else {
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid ByteOrder type = " + byte_order + " is passed to setByteOrder().";
+                throw std::invalid_argument(error_message);
+            }
+        }
+
+        void setCompressor(const std::string& compressor) {
+            buffer += " compressor=\"" + compressor + "\"";
+        }
+
+        void setFormat(const std::string& type) {
+            if (checkIsValidType<format_type_length>(FormatType, type)) {
+                buffer += " format=\"" + type + "\"";
+            } else {
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid Format type = " + type + " is passed to setFormat().";
+                throw std::invalid_argument(error_message);
+            }
+        }
+
+        void setNumberType(const std::string& type) {
+            if (checkIsValidType<number_type_length>(NumberType, type)) {
+                buffer += " type=\"" + type + "\"";
+            } else {
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid Number type = " + type + " is passed to setType().";
+                throw std::invalid_argument(error_message);
+            }
+        }
+
+        void setEncoding(const std::string& encoding) {
+            if (checkIsValidType<encoding_type_length>(EncodingType, encoding)) {
+                buffer += " encoding=\"" + encoding + "\"";
+            } else {
+                std::string error_message = "[SIMPLE VTK ERROR] Invalid Encoding type = " + encoding + " is passed to setEncoding().";
+                throw std::invalid_argument(error_message);
+            }
+        }
+
+        void setNumberOfPoints(const std::string& num) {
+            buffer += " NumberOfPoints=\"" + num + "\"";
+        }
+
+        void setNumberOfCells(const std::string& num) {
+            buffer += " NumberOfCells=\"" + num + "\"";
+        }
+
+        void setNumberOfComponents(const std::string& num) {
+            buffer += " NumberOfComponents=\"" + num + "\"";
+        }
+
+        void setNumberOfPoints(const int num) {
+            buffer += " NumberOfPoints=\"" + std::to_string(num) + "\"";
+        }
+
+        void setNumberOfCells(const int num) {
+            buffer += " NumberOfCells=\"" + std::to_string(num) + "\"";
+        }
+
+        void setNumberOfComponents(const int num) {
+            buffer += " NumberOfComponents=\"" + std::to_string(num) + "\"";
+        }
+
+        void setGridDescription(const std::string& desc) {
+            buffer += " grid_description=\"" + desc + "\"";
+        }
+
+        void setLevel(const std::string& level) {
+            buffer += " level=\"" + level + "\"";
+        }
+
+        void setLevel(const int level) {
+            buffer += " level=\"" + std::to_string(level) + "\"";
+        }
+
+        void setIndex(const std::string& index) {
+            amr_info.current_index = std::stoi(index);
+            buffer += " index=\"" + index + "\"";
+        }
+
+        void setIndex(const int index) {
+            amr_info.current_index = index;
+            buffer += " index=\"" + std::to_string(index) + "\"";
+        }
+
+        void setFile(const std::string file_path) {
+            buffer += " file=\"" + file_path + "\"";
+        }
+
+        void setOffset(const std::string& num) {
+            buffer += " offset=\"" + num + "\"";
+        }
+
+        //! For PointData and CellData
+        void setScalars(const std::string& name) {
+            buffer += " Scalars=\"" + name + "\"";
+        }
+
+        void setVectors(const std::string& name) {
+            buffer += " Vectors=\"" + name + "\"";
+        }
+
+        void setTensors(const std::string& name) {
+            buffer += " Tensors=\"" + name + "\"";
+        }
+
+        void setTCoords(const std::string& name) {
+            buffer += " TCoords=\"" + name + "\"";
+        }
+
+        template<typename... Args>
+        void setWholeExtent(Args&&... args) {
+            std::string whole_extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " WholeExtent=\"" + whole_extent + "\"";
+        }
+
+        template<typename... Args>
+        void setExtent(Args&&... args) {
+            std::string extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " Extent=\"" + extent + "\"";
+        }
+
+        template<typename... Args>
+        void setOrigin(Args&&... args) {
+            std::string origin = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+
+            if (current_vtk_type != "vtkHierarchicalBoxDataSet") {
+                buffer += " Origin=\"" + origin + "\"";
+            } else {
+                buffer += " origin=\"" + origin + "\""; // ;D
+            }
+        }
+
+        template<typename... Args>
+        void setSpacing(Args&&... args) {
+            std::string spacing = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            if (current_vtk_type != "vtkHierarchicalBoxDataSet") {
+                buffer += " Spacing=\"" + spacing + "\"";
+            } else {
+                buffer += " spacing=\"" + spacing + "\""; // ;D
+            }
+        }
+
+        void setAMRBox(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
+            addNewAMRBox(xmin, xmax, ymin, ymax, zmin, zmax);
+            std::string amr_box = convertFromVariadicArgsToString(xmin, xmax, ymin, ymax, zmin, zmax);
+            buffer += " amr_box=\"" + amr_box + "\"";
+        }
+
+        void setAMRBoxNode(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
+            // -1: node to cell index
+            addNewAMRBox(xmin, xmax - 1, ymin, ymax - 1, zmin, zmax - 1);
+            std::string amr_box = convertFromVariadicArgsToString(xmin, xmax - 1, ymin, ymax - 1, zmin, zmax - 1);
+            buffer += " amr_box=\"" + amr_box + "\"";
+        }
+
+        void setAMRBoxFromParentIndex(const int index, const int xmin_on_parent, const int xmax_on_parent, const int ymin_on_parent, const int ymax_on_parent, const int zmin_on_parent, const int zmax_on_parent) {
+            if (amr_info.current_level == 0) {
+                throw std::logic_error("[Simple VTK ERROR] setAMRBoxFromParentIndex() cannot be called on Level 0 Block.");
+            }
+
+            if (amr_info.blocks.count(amr_info.current_level - 1) > 0) {
+                auto& blocks = amr_info.blocks[amr_info.current_level - 1];
+
+                if (blocks.boxes.count(index) > 0) {
+                    const auto& parent_amr_box = blocks.boxes[index];
+                    const int xmin = 2 * parent_amr_box.xmin + 2 * xmin_on_parent;
+                    const int xmax = 2 * parent_amr_box.xmin + 2 * xmax_on_parent + 1;
+                    const int ymin = 2 * parent_amr_box.ymin + 2 * ymin_on_parent;
+                    const int ymax = 2 * parent_amr_box.ymin + 2 * ymax_on_parent + 1;
+                    const int zmin = 2 * parent_amr_box.zmin + 2 * zmin_on_parent;
+                    const int zmax = 2 * parent_amr_box.zmin + 2 * zmax_on_parent + 1;
+                    setAMRBox(xmin, xmax, ymin, ymax, zmin, zmax);
+                } else {
+                    const std::string error_message = "[Simple VTK ERROR] Specified Parent Index " + std::to_string(index) + " does not exist on setAMRBoxFromParentIndex().";
+                    throw std::logic_error(error_message);
+                }
+            } else {
+                throw std::logic_error("[Simple VTK ERROR] Parent Block Element did not initialized. Call setAMRBoxFromParentIndex() after Defining parent DataSets.");
+            }
+        }
+
+        void setAMRBoxNodeFromParentIndex(const int index, const int xmin_on_parent, const int xmax_on_parent, const int ymin_on_parent, const int ymax_on_parent, const int zmin_on_parent, const int zmax_on_parent) {
+            setAMRBoxFromParentIndex(index, xmin_on_parent, xmax_on_parent - 1, ymin_on_parent, ymax_on_parent - 1, zmin_on_parent, zmax_on_parent - 1);
+        }
 
         //! Inner array inserters
         template<typename T>
@@ -583,169 +965,71 @@ class SimpleVTK {
             endInnerElement();
         }
 
-        // --- Attirbute Setting Functions ---
-        void setName(const std::string& name) {
-            if (name != "") {
-                buffer += " Name=\"" + name + "\"";
-            }
+        // BaseExtent Setting Functions
+        void changeBaseExtent(const int xmin, const int xmax, const int ymin, const int ymax, const int zmin, const int zmax) {
+            base_extent.xmin = xmin;
+            base_extent.xmax = xmax;
+            base_extent.ymin = ymin;
+            base_extent.ymax = ymax;
+            base_extent.zmin = zmin;
+            base_extent.zmax = zmax;
+            manage_extent_status.extent_initialized = true;
         }
 
-        void setVersion(const std::string& _version) {
-            buffer += " version=\"" + _version + "\"";
+        template<typename T>
+        void changeBaseOrigin(const T x0, const T y0, const T z0) {
+            base_extent.x0 = x0;
+            base_extent.y0 = y0;
+            base_extent.z0 = z0;
+            manage_extent_status.origin_initialized = true;
         }
 
-        void setByteOrder(const std::string& byte_order) {
-            if (checkIsValidType<byte_order_type_length>(ByteOrderType, byte_order)) {
-                buffer += " byte_order=\"" + byte_order + "\"";
-            } else {
-                std::string error_message = "[SIMPLE VTK ERROR] Invalid ByteOrder type = " + byte_order + " is passed to setByteOrder().";
-                throw std::invalid_argument(error_message);
-            }
+        template<typename T>
+        void changeBaseSpacing(const T dx, const T dy, const T dz) {
+            base_extent.dx = dx;
+            base_extent.dy = dy;
+            base_extent.dz = dz;
+            manage_extent_status.spacing_initialized = true;
         }
 
-        void setCompressor(const std::string& compressor) {
-            buffer += " compressor=\"" + compressor + "\"";
+        template<typename T>
+        void changeRefinementRatio(const T new_ratio) {
+            amr_info.refinement_ratio = new_ratio;
         }
 
-        void setFormat(const std::string& type) {
-            if (checkIsValidType<format_type_length>(FormatType, type)) {
-                buffer += " format=\"" + type + "\"";
-            } else {
-                std::string error_message = "[SIMPLE VTK ERROR] Invalid Format type = " + type + " is passed to setFormat().";
-                throw std::invalid_argument(error_message);
-            }
+        ExtentInfo_t getBaseExtent() const {
+            return base_extent;
         }
 
-        void setNumberType(const std::string& type) {
-            if (checkIsValidType<number_type_length>(NumberType, type)) {
-                buffer += " type=\"" + type + "\"";
-            } else {
-                std::string error_message = "[SIMPLE VTK ERROR] Invalid Number type = " + type + " is passed to setType().";
-                throw std::invalid_argument(error_message);
-            }
+        void enableExtentManagement() { manage_extent_status.enable = true; }
+        void disableExtentManagement() { manage_extent_status.enable = false; }
+        bool isExtentManagementEnable() const {
+            return (manage_extent_status.enable && manage_extent_status.extent_initialized && manage_extent_status.origin_initialized && manage_extent_status.spacing_initialized);
         }
 
-        void setNumberOfPoints(const std::string& num) { buffer += " NumberOfPoints=\"" + num + "\""; }
-        void setNumberOfCells(const std::string& num) { buffer += " NumberOfCells=\"" + num + "\""; }
-        void setNumberOfComponents(const std::string& num) { buffer += " NumberOfComponents=\"" + num + "\""; }
-
-        void setNumberOfPoints(const int num) { buffer += " NumberOfPoints=\"" + std::to_string(num) + "\""; }
-        void setNumberOfCells(const int num) { buffer += " NumberOfCells=\"" + std::to_string(num) + "\""; }
-        void setNumberOfComponents(const int num) { buffer += " NumberOfComponents=\"" + std::to_string(num) + "\""; }
-
-        void setOffset(const std::string& num) {
-            buffer += " offset=\"" + num + "\"";
-        }
-
-        //! For PointData and CellData
-        void setScalars(const std::string& name) {
-            buffer += " Scalars=\"" + name + "\"";
-        }
-
-        void setVectors(const std::string& name) {
-            buffer += " Vectors=\"" + name + "\"";
-        }
-
-        void setTensors(const std::string& name) {
-            buffer += " Tensors=\"" + name + "\"";
-        }
-
-        void setTCoords(const std::string& name) {
-            buffer += " TCoords=\"" + name + "\"";
-        }
-
-        template<typename... Args>
-        void setWholeExtent(Args&&... args) {
-            std::string whole_extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " WholeExtent=\"" + whole_extent + "\"";
-        }
-
-        template<typename... Args>
-        void setExtent(Args&&... args) {
-            std::string extent = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Extent=\"" + extent + "\"";
-        }
-
-        template<typename... Args>
-        void setOrigin(Args&&... args) {
-            std::string origin = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Origin=\"" + origin + "\"";
-        }
-
-        template<typename... Args>
-        void setSpacing(Args&&... args) {
-            std::string spacing = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " Spacing=\"" + spacing + "\"";
-        }
-
-        /*/
         // helper functoins
-        void begin2DStructuredGrid(const std::string& gridName, const std::string& topologyType, const int nx, const int ny) {
-            beginGrid(gridName);
-
-            beginStructuredTopology("", topologyType);
-            setNumberOfElements(nx, ny);
-            endStructuredTopology();
-        }
-        
-        void end2DStructuredGrid() {
-            endGrid();
+        template<typename T>
+        void addDataArray(const std::string name, const std::string number_type, const std::string format, const std::vector<T>& values) {
+            beginDataArray(name, number_type, format);
+            addVector<T>(values);
+            endDataArray();
         }
 
         template<typename T>
-        void add2DGeometryOrigin(const std::string& geomName, const T origin_x, const T origin_y, const T dx, const T dy) {
-            beginGeometory(geomName, "ORIGIN_DXDY");
-
-            // Origin
-            beginDataItem();
-            setDimensions(2);
-            setFormat("XML");
-            addItem(origin_y, origin_x);
-            endDataItem();
-
-            // Strands
-            beginDataItem();
-            setDimensions(2);
-            setFormat("XML");
-            addItem(dy, dx);
-            endDataItem();
-
-            endGeometory();
-        }
-
-        void begin3DStructuredGrid(const std::string& gridName, const std::string& topologyType, const int nx, const int ny, const int nz) {
-            beginGrid(gridName);
-
-            beginStructuredTopology("", topologyType);
-            setNumberOfElements(nx, ny, nz);
-            endStructuredTopology();
-        }
-        
-        void end3DStructuredGrid() {
-            endGrid();
+        void addPointScalars(const std::string name, const std::string number_type, const std::string format, const std::vector<T>& values) {
+            beginPointData();
+            setScalars(name);
+            addDataArray(name, number_type, format, values);
+            endPointData();
         }
 
         template<typename T>
-        void add3DGeometryOrigin(const std::string& geomName, const T origin_x, const T origin_y, const T origin_z, const T dx, const T dy, const T dz) {
-            beginGeometory(geomName, "ORIGIN_DXDYDZ");
-
-            // Origin
-            beginDataItem();
-            setDimensions(3);
-            setFormat("XML");
-            addItem(origin_z, origin_y, origin_x);
-            endDataItem();
-
-            // Strands
-            beginDataItem();
-            setDimensions(3);
-            setFormat("XML");
-            addItem(dz, dy, dx);
-            endDataItem();
-
-            endGeometory();
+        void addCellScalars(const std::string name, const std::string number_type, const std::string format, const std::vector<T>& values) {
+            beginCellData();
+            setScalars(name);
+            addDataArray(name, number_type, format, values);
+            endCellData();
         }
-        //*/
 };
 
 #endif

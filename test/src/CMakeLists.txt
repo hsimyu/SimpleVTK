@@ -1,3 +1,11 @@
+set(Basic_SRCS "basicTest.cpp")
+add_executable(BasicTest ${TEST_FIXTURE_SRC} ${Basic_SRCS})
+target_link_libraries(BasicTest gtest gtest_main)
+add_test(
+    NAME BasicTest
+    COMMAND $<TARGET_FILE:BasicTest>
+)
+
 set(ImageData_SRCS "vtkImageDataTest.cpp")
 add_executable(ImageDataTest ${TEST_FIXTURE_SRC} ${ImageData_SRCS})
 target_link_libraries(ImageDataTest gtest gtest_main)
@@ -12,4 +20,12 @@ target_link_libraries(HierarchicalBoxDataSetTest gtest gtest_main)
 add_test(
     NAME HierarchicalBoxDataSetTest
     COMMAND $<TARGET_FILE:HierarchicalBoxDataSetTest>
+)
+
+set(HelperFunctions_SRCS "helperFunctionsTest.cpp")
+add_executable(HelperFunctionsTest ${TEST_FIXTURE_SRC} ${HelperFunctions_SRCS})
+target_link_libraries(HelperFunctionsTest gtest gtest_main)
+add_test(
+    NAME HelperFunctionsTest
+    COMMAND $<TARGET_FILE:HelperFunctionsTest>
 )

@@ -2,10 +2,6 @@
 
 namespace TEST_SIMPLE_VTK {
 
-    TEST_F(Test1, check_header) {
-        ASSERT_EQ(gen.getRawString(), header);
-    }
-
     TEST_F(Test1, make_vtk_imagedata) {
         gen.beginVTK("ImageData");
         gen.endVTK();
