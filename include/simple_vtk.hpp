@@ -292,6 +292,10 @@ class SimpleVTK {
             newLine = CRLF;
         }
 
+        void setInnerElementPerLine(unsigned int value) {
+            innerElementPerLine = value;
+        }
+
         // IO functions
         void generate(const std::string file_name) {
             if(!endEdit) endVTK();
