@@ -738,8 +738,35 @@ class SimpleVTK {
             }
         }
 
+        // if parent level specified
+        void setAMRBoxFromParentIndex(const int index, const int parent_level, const int xmin_on_parent, const int xmax_on_parent, const int ymin_on_parent, const int ymax_on_parent, const int zmin_on_parent, const int zmax_on_parent) {
+            if (amr_info.blocks.count(parent_level) > 0) {
+                auto& blocks = amr_info.blocks[parent_level];
+
+                if (blocks.boxes.count(index) > 0) {
+                    const auto& parent_amr_box = blocks.boxes[index];
+                    const int xmin = 2 * parent_amr_box.xmin + 2 * xmin_on_parent;
+                    const int xmax = 2 * parent_amr_box.xmin + 2 * xmax_on_parent + 1;
+                    const int ymin = 2 * parent_amr_box.ymin + 2 * ymin_on_parent;
+                    const int ymax = 2 * parent_amr_box.ymin + 2 * ymax_on_parent + 1;
+                    const int zmin = 2 * parent_amr_box.zmin + 2 * zmin_on_parent;
+                    const int zmax = 2 * parent_amr_box.zmin + 2 * zmax_on_parent + 1;
+                    setAMRBox(xmin, xmax, ymin, ymax, zmin, zmax);
+                } else {
+                    const std::string error_message = "[Simple VTK ERROR] Specified Parent Index " + std::to_string(index) + " does not exist on setAMRBoxFromParentIndex().";
+                    throw std::logic_error(error_message);
+                }
+            } else {
+                throw std::logic_error("[Simple VTK ERROR] Parent Block Element did not initialized. Call setAMRBoxFromParentIndex() after Defining parent DataSets.");
+            }
+        }
+
         void setAMRBoxNodeFromParentIndex(const int index, const int xmin_on_parent, const int xmax_on_parent, const int ymin_on_parent, const int ymax_on_parent, const int zmin_on_parent, const int zmax_on_parent) {
             setAMRBoxFromParentIndex(index, xmin_on_parent, xmax_on_parent - 1, ymin_on_parent, ymax_on_parent - 1, zmin_on_parent, zmax_on_parent - 1);
+        }
+
+        void setAMRBoxNodeFromParentIndex(const int index, const int parent_level, const int xmin_on_parent, const int xmax_on_parent, const int ymin_on_parent, const int ymax_on_parent, const int zmin_on_parent, const int zmax_on_parent) {
+            setAMRBoxFromParentIndex(index, parent_level, xmin_on_parent, xmax_on_parent - 1, ymin_on_parent, ymax_on_parent - 1, zmin_on_parent, zmax_on_parent - 1);
         }
 
         //! Inner array inserters
