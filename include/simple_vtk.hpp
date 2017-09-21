@@ -86,10 +86,14 @@ class SimpleVTK {
             setNewLineCodeLF();
             setIndentSpaceSize();
             endEdit = false;
-            content = header;
+            content = "";
             current_tag = "VTKFile";
             current_vtk_type = "";
             initializeAMRBoxInfo();
+        }
+
+        void beginWithHeader() {
+            content += header;
         }
 
         // Structure Management
@@ -407,6 +411,7 @@ class SimpleVTK {
         }
 
         void beginVTK(const std::string& type) {
+            beginWithHeader();
             beginElement("VTKFile");
             addType(type);
 

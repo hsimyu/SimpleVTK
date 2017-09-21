@@ -2,7 +2,7 @@
 
 namespace TEST_SIMPLE_VTK {
     TEST_F(Test1, check_header) {
-        ASSERT_EQ(gen.getRawString(), header);
+        ASSERT_EQ(gen.getRawString(), "");
     }
 
     TEST_F(Test1, check_append_data) {
