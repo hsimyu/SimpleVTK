@@ -54,13 +54,13 @@ class SimpleVTK {
 
         // indent management
         std::string indent;
-        unsigned int currentIndentation = -1;
+        int currentIndentation = -1;
         void addIndent() {
             ++currentIndentation;
         }
 
         void backIndent() {
-            if (currentIndentation > 0) --currentIndentation;
+            if (currentIndentation >= 0) --currentIndentation;
         }
 
         void insertIndent() {
@@ -422,6 +422,17 @@ class SimpleVTK {
 
         void endVTK() {
             endElement("VTKFile");
+            endEdit = true;
+        }
+
+        //! Do nothing except for type checking and setting
+        void beginVTKPartial(const std::string& type) {
+            if (checkType(type)) {
+                current_vtk_type = type;
+            }
+        }
+
+        void endVTKPartial() {
             endEdit = true;
         }
 
