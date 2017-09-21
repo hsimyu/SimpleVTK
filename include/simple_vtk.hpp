@@ -81,17 +81,6 @@ class SimpleVTK {
             return current_tag;
         }
 
-        // Initialize Current State
-        void initialize() {
-            setNewLineCodeLF();
-            setIndentSpaceSize();
-            endEdit = false;
-            content = "";
-            current_tag = "VTKFile";
-            current_vtk_type = "";
-            initializeAMRBoxInfo();
-        }
-
         void beginWithHeader() {
             content += header;
         }
@@ -364,7 +353,18 @@ class SimpleVTK {
 
     public:
         SimpleVTK() {
-            initialize();
+            init();
+        }
+
+        // Initialize Current State
+        void init() {
+            setNewLineCodeLF();
+            setIndentSpaceSize();
+            endEdit = false;
+            content = "";
+            current_tag = "VTKFile";
+            current_vtk_type = "";
+            initializeAMRBoxInfo();
         }
 
         void setIndentSpaceSize(const int size = 4) {
