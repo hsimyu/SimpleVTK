@@ -687,7 +687,7 @@ class SimpleVTK {
         template<typename... Args>
         void setTCoords(Args&&... args) {
             std::string tcoords = convertFromVariadicArgsToString(std::forward<Args>(args)...);
-            buffer += " TCoords=\"" + vectors + "\"";
+            buffer += " TCoords=\"" + tcoords + "\"";
         }
 
         template<typename... Args>
