@@ -246,7 +246,7 @@ class SimpleVTK {
             }
         }
 
-        // for convinience
+        // for convinience, set attributes from variadic arguments
         void convertFromVariadicArgsToStringInternal(const std::string& buffer) {}
 
         template<typename First, typename... Rests>
@@ -666,20 +666,28 @@ class SimpleVTK {
         }
 
         //! For PointData and CellData
-        void setScalars(const std::string& name) {
-            buffer += " Scalars=\"" + name + "\"";
+        template<typename... Args>
+        void setScalars(Args&&... args) {
+            std::string scalars = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " Scalars=\"" + scalars + "\"";
         }
 
-        void setVectors(const std::string& name) {
-            buffer += " Vectors=\"" + name + "\"";
+        template<typename... Args>
+        void setVectors(Args&&... args) {
+            std::string vectors = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " Vectors=\"" + vectors + "\"";
         }
 
-        void setTensors(const std::string& name) {
-            buffer += " Tensors=\"" + name + "\"";
+        template<typename... Args>
+        void setTensors(Args&&... args) {
+            std::string tensors = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " Tensors=\"" + tensors + "\"";
         }
 
-        void setTCoords(const std::string& name) {
-            buffer += " TCoords=\"" + name + "\"";
+        template<typename... Args>
+        void setTCoords(Args&&... args) {
+            std::string tcoords = convertFromVariadicArgsToString(std::forward<Args>(args)...);
+            buffer += " TCoords=\"" + vectors + "\"";
         }
 
         template<typename... Args>
